@@ -9,8 +9,6 @@ Run `saveapp.js`, replacing emails and passwords as needed. Then, run Kappbot.js
 
 ### Custom emotes
 -----
-Make sure it's already downloaded as "emotename.png", ALL LOWERCASE!
+Run `node addemote.js <emotename> <emoteurl>` to add a new emote. To delete, use `node delemote <emotename>`.
 
-Edit custom.json to include it, in the form (,) {"code":"emotename"}
-
-*EXPERIMENTAL*: Run `node addemote.js EMOTE_NAME (EMOTE_URL)`. Should add the emote to custom.json automatically, and download it if needed.
+Custom emote list can be enumerated with `!customlist` in chat.

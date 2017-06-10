@@ -11,6 +11,18 @@ function updateJSON() {
 	});
 }
 
+fs.unlink('/emotes/' + emotename + '.png', function(err) {
+    if(err && err.code == 'ENOENT') {
+        // file doens't exist
+        console.info("File doesn't exist, won't remove it.");
+    } else if (err) {
+        // maybe we don't have enough permission
+        console.error("Error occurred while trying to remove file");
+    } else {
+        console.info(`removed`);
+    }
+});
+
 delete custom.emotes[emotename];
 var customJSONstr = JSON.stringify(custom);
 
