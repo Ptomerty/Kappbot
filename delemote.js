@@ -11,7 +11,7 @@ function updateJSON() {
 	});
 }
 
-fs.unlink('/emotes/' + emotename + '.png', function(err) {
+fs.unlink(__dirname + '/emotes/' + emotename + '.png', function(err) {
     if(err && err.code == 'ENOENT') {
         // file doens't exist
         console.info("File doesn't exist, won't remove it.");
