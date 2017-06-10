@@ -96,6 +96,14 @@ login({
 
 
 		if (message.body !== null && typeof message.body === 'string') {
+			if (message.body === '!customlist') {
+				var send = "Custom emote list: ";
+				Object.keys(custom).forEach(function (key) {
+					send += key + ', ';
+				});
+				api.sendMessage(send, message.threadID);
+				
+			}
 			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
 				.replace(/\s+/g, " ").toLowerCase();
 			var splitWords = cleanedMsg.split(" ");
