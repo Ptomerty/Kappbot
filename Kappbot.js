@@ -98,6 +98,12 @@ login({
 		}
 
 		function checkForCommands(message) {
+			function updateJSON() {
+				fs.writeFile('custom.json', customJSONstr, (err) => {
+					if (err) throw err;
+					console.log('written!');
+				});
+			}
 			var split = message.split(" ");
 			if (modlist.includes(message.senderID) && message.commands.includes(split[0])) {
 				if (split[0] === '!customlist' && split.length === 1) {
@@ -109,9 +115,27 @@ login({
 					send = send.substring(0, send.length - 2);
 					api.sendMessage(send, message.threadID);
 				} else if (split[0] === '!addemote' && split.length === 3) {
-
+					var emotename = split[1];
+					var url = split[2];
+					custom.emotes[emotename] = '';
+					var customJSONstr = JSON.stringify(custom);
+					wget.download(url, __dirname + '/emotes/' + emotename + '.png');
+					updateJSON();
 				} else if (split[0] === '!delemote' && split.length === 2) {
-
+					fs.unlink(__dirname + '/emotes/' + emotename + '.png', function(err) {
+						if (err && err.code == 'ENOENT') {
+							// file doens't exist
+							console.info("File doesn't exist, won't remove it.");
+						} else if (err) {
+							// maybe we don't have enough permission
+							console.error("Error occurred while trying to remove file");
+						} else {
+							console.info(`removed`);
+						}
+					});
+					delete custom.emotes[emotename];
+					var customJSONstr = JSON.stringify(custom);
+					updateJSON();
 				} else if (split[0] === '!mod' && split.length === 3) {
 					var name = split[1] + " " + split[2];
 					api.getUserID(name, (err, data) => {
@@ -122,7 +146,6 @@ login({
 						modlist.push(data);
 						api.sendMessage("Mod successful!", message.threadID);
 					});
-
 				} else if (split[0] === '!demod' && split.length === 3) {
 					var name = split[1] + " " + split[2];
 					api.getUserID(name, (err, data) => {
@@ -135,7 +158,6 @@ login({
 						}
 						api.sendMessage("Delete successful!", message.threadID);
 					});
-
 				}
 			}
 		}
