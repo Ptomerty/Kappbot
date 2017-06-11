@@ -9,7 +9,7 @@ const bttv = require('./bttv.json');
 const custom = require('./custom.json');
 
 const modcommands = ['!addemote', '!delemote', '!mod', '!demod'];
-const commands = ['!addemote', '!delemote', '!mod', '!demod', '!id', '!ping', '!customlist', '!commands'];
+const commands = ['!id', '!ping', '!customlist', '!commands'];
 const modlist = []; //fill in with your own ID.
 
 login({
@@ -113,9 +113,16 @@ login({
 				api.sendMessage("Your ID is " + message.senderID, message.threadID);
 			} else if (message.body === '!commands') {
 				var send = "Commands: ";
-				Object.keys(commands).forEach(function(key) {
-					send += key + ', ';
-				});
+				for (i = 0; i < commands.length; i++) {
+					send += commands[i] + ", ";
+				}
+				send = send.substring(0, send.length - 2);
+				api.sendMessage(send, message.threadID);
+			} else if (message.body === '!modcommands') {
+				var send = "Mod Commands: ";
+				for (i = 0; i < modcommands.length; i++) {
+					send += modcommands[i] + ", ";
+				}
 				send = send.substring(0, send.length - 2);
 				api.sendMessage(send, message.threadID);
 			} else if (message.body === '!customlist') {
@@ -128,6 +135,7 @@ login({
 			} else if (message.body === '!ping') {
 				api.sendMessage("Hello!", message.threadID);
 			} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
+				//note that addemote and delemote are broken until readfile support
 				if (split[0] === '!addemote' && split.length === 3) {
 					var emotename = split[1];
 					var url = split[2];
