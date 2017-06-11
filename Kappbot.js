@@ -136,7 +136,14 @@ login({
 				api.sendMessage("Hello!", message.threadID);
 			} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
 				//note that addemote and delemote are broken until readfile support
-				if (split[0] === '!addemote' && split.length === 3) {
+				if (split[0] === '!mods' && split.length === 1) {
+					var send = "Mod IDs: ";
+					for (i = 0; i < modlist.length; i++) {
+						send += modlist[i] + ", ";
+					}
+					send = send.substring(0, send.length - 2);
+					api.sendMessage(send, message.threadID);
+				} else if (split[0] === '!addemote' && split.length === 3) {
 					var emotename = split[1];
 					var url = split[2];
 					custom.emotes[emotename] = '';
