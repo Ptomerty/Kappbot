@@ -8,7 +8,8 @@ const subs = require('./subs.json');
 const bttv = require('./bttv.json');
 const custom = require('./custom.json');
 
-const commands = ['!addemote', '!delemote', '!mod', '!demod'];
+const modcommands = ['!addemote', '!delemote', '!mod', '!demod'];
+const commands = ['!addemote', '!delemote', '!mod', '!demod', '!id', '!ping', '!customlist', '!commands'];
 const modlist = []; //fill in with your own ID.
 
 login({
@@ -99,27 +100,34 @@ login({
 		}
 
 		function checkForCommands(message) {
-			console.log("entered cfc fxn!");
 
 			function updateJSON() {
 				fs.writeFile('custom.json', customJSONstr, (err) => {
 					if (err) throw err;
 					console.log('written!');
 				});
+				//readfile here
 			}
 			var split = message.body.split(" ");
 			if (message.body === '!id') {
 				api.sendMessage("Your ID is " + message.senderID, message.threadID);
+			} else if (message.body === '!commands') {
+				var send = "Commands: ";
+				Object.keys(commands).forEach(function(key) {
+					send += key + ', ';
+				});
+				send = send.substring(0, send.length - 2);
+				api.sendMessage(send, message.threadID);
 			} else if (message.body === '!customlist') {
 				var send = "Custom emote list: ";
-					Object.keys(custom.emotes).forEach(function(key) {
-						send += key + ', ';
-					});
-					send = send.substring(0, send.length - 2);
-					api.sendMessage(send, message.threadID);
+				Object.keys(custom.emotes).forEach(function(key) {
+					send += key + ', ';
+				});
+				send = send.substring(0, send.length - 2);
+				api.sendMessage(send, message.threadID);
 			} else if (message.body === '!ping') {
 				api.sendMessage("Hello!", message.threadID);
-			} else if (modlist.includes(message.senderID) && commands.includes(split[0])) {
+			} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
 				if (split[0] === '!addemote' && split.length === 3) {
 					var emotename = split[1];
 					var url = split[2];
@@ -127,6 +135,7 @@ login({
 					var customJSONstr = JSON.stringify(custom);
 					wget.download(url, __dirname + '/emotes/' + emotename + '.png');
 					updateJSON();
+					api.sendMessage("Emote added!", message.threadID);
 				} else if (split[0] === '!delemote' && split.length === 2) {
 					fs.unlink(__dirname + '/emotes/' + emotename + '.png', function(err) {
 						if (err && err.code == 'ENOENT') {
@@ -142,6 +151,7 @@ login({
 					delete custom.emotes[emotename];
 					var customJSONstr = JSON.stringify(custom);
 					updateJSON();
+					api.sendMessage("Emote deleted!", message.threadID);
 				} else if (split[0] === '!mod' && split.length === 3) {
 					var name = split[1] + " " + split[2];
 					api.getUserID(name, (err, data) => {
