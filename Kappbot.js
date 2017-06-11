@@ -134,9 +134,9 @@ login({
 				api.sendMessage(send, message.threadID);
 			} else if (message.body === '!ping') {
 				api.sendMessage("Hello!", message.threadID);
-			} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
+			} else if (modlist.includes(message.senderID)) {
 				//note that addemote and delemote are broken until readfile support
-				if (split[0] === '!mods' && split.length === 1) {
+				if (message.body === '!modlist' && split.length === 1) {
 					var send = "Mod IDs: ";
 					for (i = 0; i < modlist.length; i++) {
 						send += modlist[i] + ", ";

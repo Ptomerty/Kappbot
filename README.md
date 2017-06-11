@@ -14,3 +14,5 @@ Run `node addemote.js <emotename> <emoteurl>` to add a new emote. To delete, use
 Custom emote list can be enumerated with `!customlist` in chat.
 
 TODO: Refactor code with promises. This can lead to reading in the JSON files -> logging in -> api.listen.
+
+Convert Mod List to Names, also with promises.
