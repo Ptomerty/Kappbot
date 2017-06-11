@@ -8,7 +8,7 @@ const subs = require('./subs.json');
 const bttv = require('./bttv.json');
 const custom = require('./custom.json');
 
-const commands = ['!customlist', '!addemote', '!delemote', '!mod', '!demod'];
+const commands = ['!addemote', '!delemote', '!mod', '!demod'];
 const modlist = []; //fill in with your own ID.
 
 login({
@@ -109,18 +109,18 @@ login({
 			}
 			var split = message.body.split(" ");
 			if (message.body === '!id') {
-					api.sendMessage("Your ID is " + message.senderID, message.threadID);
-			}
-			if (modlist.includes(message.senderID) && commands.includes(split[0])) {
-				if (split[0] === '!customlist' && split.length === 1) {
-					//only !customlist sent
-					var send = "Custom emote list: ";
+				api.sendMessage("Your ID is " + message.senderID, message.threadID);
+			} else if (message.body === '!customlist') {
+				var send = "Custom emote list: ";
 					Object.keys(custom.emotes).forEach(function(key) {
 						send += key + ', ';
 					});
 					send = send.substring(0, send.length - 2);
 					api.sendMessage(send, message.threadID);
-				} else if (split[0] === '!addemote' && split.length === 3) {
+			} else if (message.body === '!ping') {
+				api.sendMessage("Hello!", message.threadID);
+			} else if (modlist.includes(message.senderID) && commands.includes(split[0])) {
+				if (split[0] === '!addemote' && split.length === 3) {
 					var emotename = split[1];
 					var url = split[2];
 					custom.emotes[emotename] = '';
