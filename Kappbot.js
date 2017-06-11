@@ -104,7 +104,7 @@ login({
 					console.log('written!');
 				});
 			}
-			var split = message.split(" ");
+			var split = message..body.split(" ");
 			if (modlist.includes(message.senderID) && message.commands.includes(split[0])) {
 				if (split[0] === '!customlist' && split.length === 1) {
 					//only !customlist sent
