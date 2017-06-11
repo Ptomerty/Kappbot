@@ -22,6 +22,7 @@ login({
 
 	api.listen((err, message) => {
 		if (err) return console.warn(err);
+
 		function downloadImage(url, pathname) {
 			return new Promise(function(resolve, reject) {
 				fs.open(pathname, "wx", function(err, fd) {
@@ -42,7 +43,7 @@ login({
 
 		function generateURL(name) {
 			var imageID;
-			var URL;
+			var url;
 			if (globalEmotes.emotes[name] !== undefined) {
 				// console.log('emote is global')
 				imageID = globalEmotes.emotes[name].image_id;
@@ -99,6 +100,7 @@ login({
 
 		function checkForCommands(message) {
 			console.log("entered cfc fxn!");
+
 			function updateJSON() {
 				fs.writeFile('custom.json', customJSONstr, (err) => {
 					if (err) throw err;
@@ -106,7 +108,10 @@ login({
 				});
 			}
 			var split = message.body.split(" ");
-			if (modlist.includes(message.senderID) && message.commands.includes(split[0])) {
+			if (message.body === '!id') {
+					api.sendMessage("Your ID is " + message.senderID, message.threadID);
+			}
+			if (modlist.includes(message.senderID) && commands.includes(split[0])) {
 				if (split[0] === '!customlist' && split.length === 1) {
 					//only !customlist sent
 					var send = "Custom emote list: ";
