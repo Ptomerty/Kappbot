@@ -8,6 +8,9 @@ const subs = require('./subs.json');
 const bttv = require('./bttv.json');
 const custom = require('./custom.json');
 
+const commands = ['!customlist', '!addemote', '!delemote', '!mod', '!demod'];
+const modlist = []; //fill in with your own ID.
+
 login({
 	appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
 }, (err, api) => {
@@ -94,17 +97,52 @@ login({
 			api.sendMessage(msg, message.threadID);
 		}
 
+		function checkForCommands(message) {
+			var split = message.split(" ");
+			if (modlist.includes(message.senderID) && message.commands.includes(split[0])) {
+				if (split[0] === '!customlist' && split.length === 1) {
+					//only !customlist sent
+					var send = "Custom emote list: ";
+					Object.keys(custom.emotes).forEach(function(key) {
+						send += key + ', ';
+					});
+					send = send.substring(0, send.length - 2);
+					api.sendMessage(send, message.threadID);
+				} else if (split[0] === '!addemote' && split.length === 3) {
+
+				} else if (split[0] === '!delemote' && split.length === 2) {
+
+				} else if (split[0] === '!mod' && split.length === 3) {
+					var name = split[1] + " " + split[2];
+					api.getUserID(name, (err, data) => {
+						if (err) {
+							api.sendMessage("Lookup failed, exiting.", message.threadID);
+							console.error(err);
+						}
+						modlist.push(data);
+						api.sendMessage("Mod successful!", message.threadID);
+					});
+
+				} else if (split[0] === '!demod' && split.length === 3) {
+					var name = split[1] + " " + split[2];
+					api.getUserID(name, (err, data) => {
+						if (err) {
+							api.sendMessage("Lookup failed, exiting.", message.threadID);
+							console.error(err);
+						}
+						if (modlist.includes(data)) {
+							delete modlist[modlist.indexOf(data)];
+						}
+						api.sendMessage("Delete successful!", message.threadID);
+					});
+
+				}
+			}
+		}
+
 
 		if (message.body !== null && typeof message.body === 'string') {
-			if (message.body === '!customlist') {
-				var send = "Custom emote list: ";
-				Object.keys(custom.emotes).forEach(function (key) {
-					send += key + ', ';
-				});
-				send = send.substring(0,send.length-2);
-				api.sendMessage(send, message.threadID);
-
-			}
+			checkForCommands(message);
 			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
 				.replace(/\s+/g, " ").toLowerCase();
 			var splitWords = cleanedMsg.split(" ");
@@ -119,8 +157,8 @@ login({
 					custom.emotes[name] !== undefined) {
 					sendArray.push(getEmoteImageStream(name));
 					counter++;
-					if (counter >= 3) {
-						//async messes up order
+					if (counter >= 5) {
+						//prevent spam
 						break;
 					}
 				}
