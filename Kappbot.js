@@ -174,7 +174,7 @@ login({
 							api.sendMessage("Lookup failed, exiting.", message.threadID);
 							console.error(err);
 						}
-						modlist.push(data);
+						modlist.push(data[0].userID);
 						api.sendMessage("Mod successful!", message.threadID);
 					});
 				} else if (split[0] === '!demod' && split.length === 3) {
@@ -184,8 +184,8 @@ login({
 							api.sendMessage("Lookup failed, exiting.", message.threadID);
 							console.error(err);
 						}
-						if (modlist.includes(data)) {
-							delete modlist[modlist.indexOf(data)];
+						if (modlist.includes(data[0].userID)) {
+							delete modlist[modlist.indexOf(data[0].userID)];
 						}
 						api.sendMessage("Delete successful!", message.threadID);
 					});
