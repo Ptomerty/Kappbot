@@ -21,7 +21,7 @@ login({
 	});
 
 	api.listen((err, message) => {
-
+		if (err) return console.warn(err);
 		function downloadImage(url, pathname) {
 			return new Promise(function(resolve, reject) {
 				fs.open(pathname, "wx", function(err, fd) {
@@ -98,13 +98,14 @@ login({
 		}
 
 		function checkForCommands(message) {
+			console.log("entered cfc fxn!");
 			function updateJSON() {
 				fs.writeFile('custom.json', customJSONstr, (err) => {
 					if (err) throw err;
 					console.log('written!');
 				});
 			}
-			var split = message..body.split(" ");
+			var split = message.body.split(" ");
 			if (modlist.includes(message.senderID) && message.commands.includes(split[0])) {
 				if (split[0] === '!customlist' && split.length === 1) {
 					//only !customlist sent
@@ -163,7 +164,7 @@ login({
 		}
 
 
-		if (message.body !== null && typeof message.body === 'string') {
+		if (message.body !== undefined && typeof message.body === 'string') {
 			checkForCommands(message);
 			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
 				.replace(/\s+/g, " ").toLowerCase();
