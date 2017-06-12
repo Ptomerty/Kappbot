@@ -3,18 +3,27 @@ const login = require("facebook-chat-api");
 const wget = require('wget-improved');
 const Promise = require('bluebird');
 
-const globalEmotes = require('./global.json');
-const subs = require('./subs.json');
-const bttv = require('./bttv.json');
-const custom = require('./custom.json');
-
 const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!modcommands'];
 const commands = ['!id', '!ping', '!customlist', '!commands', '!modlist'];
 const modlist = []; //fill in with your own ID.
 
+var readFile = Promise.promisify(fs.readFile);
+var writeFile = Promise.promisify(fs.writeFile);
+
+Promise.all([
+	readFile('./global.json', 'utf8'), readFile('./subs.json', 'utf8'),
+	readFile('./bttv.json', 'utf8'), readFile('./custom.json', 'utf8')
+]).then(([file1, file2, file3, file4]) => {
+	globalEmotes = file1;
+	subs = file2;
+	bttv = file3;
+	custom = file4;
+});
+//.then login??
 login({
 	appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
 }, (err, api) => {
+	//take api and .then into setoptions or something?
 	if (err) return console.error(err);
 
 	api.setOptions({
@@ -102,10 +111,12 @@ login({
 		function checkForCommands(message) {
 
 			function updateJSON() {
-				fs.writeFile('custom.json', customJSONstr, (err) => {
-					if (err) throw err;
-					console.log('written!');
-				});
+				writeFile('custom.json', customJSONstr)
+					.then(() => {
+						return readFile('custom.json', 'utf8')
+					}).then(function(newdata) {
+						custom = newdata;
+					});
 				//readfile here
 			}
 			var split = message.body.split(" ");
