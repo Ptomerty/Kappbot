@@ -26,3 +26,18 @@ promisify addemote?
 more todo: change delete to splice.
 
 add !threadID, mod!echo
+
+return new Promise(function(resolve, reject) {
+        open(pathname, "wx")
+            .then(close)
+            .then(() => {
+                    wget.download(url, pathname)
+                        .on('error', reject)
+                        .on('end', resolve);
+                }
+
+            })
+    .catch(e => {
+            throw e;
+    });
+}
