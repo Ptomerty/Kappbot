@@ -8,6 +8,10 @@ const subs = require('./subs.json');
 const bttv = require('./bttv.json');
 const custom = require('./custom.json');
 
+const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!modcommands'];
+const commands = ['!id', '!ping', '!customlist', '!commands', '!modlist'];
+const modlist = []; //fill in with your own ID.
+
 login({
 	appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
 }, (err, api) => {
@@ -18,6 +22,7 @@ login({
 	});
 
 	api.listen((err, message) => {
+		if (err) return console.warn(err);
 
 		function downloadImage(url, pathname) {
 			return new Promise(function(resolve, reject) {
@@ -39,7 +44,7 @@ login({
 
 		function generateURL(name) {
 			var imageID;
-			var URL;
+			var url;
 			if (globalEmotes.emotes[name] !== undefined) {
 				// console.log('emote is global')
 				imageID = globalEmotes.emotes[name].image_id;
@@ -94,17 +99,104 @@ login({
 			api.sendMessage(msg, message.threadID);
 		}
 
+		function checkForCommands(message) {
 
-		if (message.body !== null && typeof message.body === 'string') {
-			if (message.body === '!customlist') {
+			function updateJSON() {
+				fs.writeFile('custom.json', customJSONstr, (err) => {
+					if (err) throw err;
+					console.log('written!');
+				});
+				//readfile here
+			}
+			var split = message.body.split(" ");
+			if (message.body === '!id') {
+				api.sendMessage("Your ID is " + message.senderID, message.threadID);
+			} else if (message.body === '!commands') {
+				var send = "Commands: ";
+				for (i = 0; i < commands.length; i++) {
+					send += commands[i] + ", ";
+				}
+				send = send.substring(0, send.length - 2);
+				api.sendMessage(send, message.threadID);
+			} else if (message.body === '!modcommands') {
+				var send = "Mod Commands: ";
+				for (i = 0; i < modcommands.length; i++) {
+					send += modcommands[i] + ", ";
+				}
+				send = send.substring(0, send.length - 2);
+				api.sendMessage(send, message.threadID);
+			} else if (message.body === '!customlist') {
 				var send = "Custom emote list: ";
-				Object.keys(custom.emotes).forEach(function (key) {
+				Object.keys(custom.emotes).forEach(function(key) {
 					send += key + ', ';
 				});
-				send = send.substring(0,send.length-2);
+				send = send.substring(0, send.length - 2);
 				api.sendMessage(send, message.threadID);
+			} else if (message.body === '!ping') {
+				api.sendMessage("Hello!", message.threadID);
+			} else if (message.body === '!modlist' && split.length === 1) {
+				var send = "Mod IDs: ";
+				for (i = 0; i < modlist.length; i++) {
+					send += modlist[i] + ", ";
+				}
+				send = send.substring(0, send.length - 2);
+				api.sendMessage(send, message.threadID);
+			} else if (modlist.includes(message.senderID)) {
+				//note that addemote and delemote are broken until readfile support
+				if (split[0] === '!addemote' && split.length === 3) {
+					var emotename = split[1];
+					var url = split[2];
+					custom.emotes[emotename] = '';
+					var customJSONstr = JSON.stringify(custom);
+					wget.download(url, __dirname + '/emotes/' + emotename + '.png');
+					updateJSON();
+					api.sendMessage("Emote added!", message.threadID);
+				} else if (split[0] === '!delemote' && split.length === 2) {
+					fs.unlink(__dirname + '/emotes/' + emotename + '.png', function(err) {
+						if (err && err.code == 'ENOENT') {
+							// file doens't exist
+							console.info("File doesn't exist, won't remove it.");
+						} else if (err) {
+							// maybe we don't have enough permission
+							console.error("Error occurred while trying to remove file");
+						} else {
+							console.info('removed');
+							api.sendMessage("Emote deleted!", message.threadID);
+						}
+					});
+					delete custom.emotes[emotename];
+					var customJSONstr = JSON.stringify(custom);
+					updateJSON();
 
+				} else if (split[0] === '!mod' && split.length === 3) {
+					var name = split[1] + " " + split[2];
+					api.getUserID(name, (err, data) => {
+						if (err) {
+							api.sendMessage("Lookup failed, exiting.", message.threadID);
+							console.error(err);
+						}
+						modlist.push(data[0].userID);
+						api.sendMessage("Mod successful!", message.threadID);
+					});
+				} else if (split[0] === '!demod' && split.length === 3) {
+					var name = split[1] + " " + split[2];
+					api.getUserID(name, (err, data) => {
+						if (err) {
+							api.sendMessage("Lookup failed, exiting.", message.threadID);
+							console.error(err);
+						}
+						if (modlist.includes(data[0].userID)) {
+							delete modlist[modlist.indexOf(data[0].userID)];
+						}
+						api.sendMessage("Delete successful!", message.threadID);
+					});
+				}
 			}
+		}
+
+
+		if (message.body !== undefined && typeof message.body === 'string') {
+			checkForCommands(message);
 			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
 				.replace(/\s+/g, " ").toLowerCase();
 			var splitWords = cleanedMsg.split(" ");
@@ -119,8 +211,8 @@ login({
 					custom.emotes[name] !== undefined) {
 					sendArray.push(getEmoteImageStream(name));
 					counter++;
-					if (counter >= 3) {
-						//async messes up order
+					if (counter >= 5) {
+						//prevent spam
 						break;
 					}
 				}
