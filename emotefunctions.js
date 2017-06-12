@@ -15,7 +15,7 @@ Promise.all([
 	custom = file4;
 })
 
-exports.downloadImage = function(url, pathname) {
+var downloadImage = function(url, pathname) {
 	return new Promise(function(resolve, reject) {
 		//PROMISIFY ALL OF THESE UGH
 		//open.then(close).then(wget)?
@@ -35,7 +35,7 @@ exports.downloadImage = function(url, pathname) {
 	});
 }
 
-exports.generateURL = function(name) {
+var generateURL = function(name) {
 	var imageID;
 	var url;
 	if (globalEmotes.emotes[name] !== undefined) {
@@ -55,7 +55,7 @@ exports.generateURL = function(name) {
 	return url;
 }
 
-exports.getEmoteImageStream = function(name) {
+var getEmoteImageStream = function(name) {
 	const pathname = __dirname + '/emotes/' + name + '.png';
 
 	return new Promise((resolve, reject) => {
@@ -83,3 +83,7 @@ exports.getEmoteImageStream = function(name) {
 			});
 	});
 }
+
+exports.downloadImage = downloadImage;
+exports.generateURL = generateURL;
+exports.getEmoteImageStream = getEmoteImageStream;
