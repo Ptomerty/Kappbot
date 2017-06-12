@@ -22,3 +22,7 @@ add prompt for first mod (console) if modlist is empty.
 convert modlist to file (not json, just newlines)
 
 promisify addemote?
+
+more todo: change delete to splice.
+
+add !threadID, mod!echo
