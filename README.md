@@ -15,4 +15,10 @@ Custom emote list can be enumerated with `!customlist` in chat.
 
 TODO: Refactor code with promises. This can lead to reading in the JSON files -> logging in -> api.listen.
 
-Convert Mod List to Names, also with promises.
+Convert Mod List to Names, also with promises (required? idk) 
+
+add prompt for first mod (console) if modlist is empty.
+
+convert modlist to file (not json, just newlines)
+
+promisify addemote?

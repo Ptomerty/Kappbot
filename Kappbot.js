@@ -8,8 +8,8 @@ const subs = require('./subs.json');
 const bttv = require('./bttv.json');
 const custom = require('./custom.json');
 
-const modcommands = ['!addemote', '!delemote', '!mod', '!demod'];
-const commands = ['!id', '!ping', '!customlist', '!commands'];
+const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!modcommands'];
+const commands = ['!id', '!ping', '!customlist', '!commands', '!modlist'];
 const modlist = []; //fill in with your own ID.
 
 login({
@@ -134,16 +134,16 @@ login({
 				api.sendMessage(send, message.threadID);
 			} else if (message.body === '!ping') {
 				api.sendMessage("Hello!", message.threadID);
+			} else if (message.body === '!modlist' && split.length === 1) {
+				var send = "Mod IDs: ";
+				for (i = 0; i < modlist.length; i++) {
+					send += modlist[i] + ", ";
+				}
+				send = send.substring(0, send.length - 2);
+				api.sendMessage(send, message.threadID);
 			} else if (modlist.includes(message.senderID)) {
 				//note that addemote and delemote are broken until readfile support
-				if (message.body === '!modlist' && split.length === 1) {
-					var send = "Mod IDs: ";
-					for (i = 0; i < modlist.length; i++) {
-						send += modlist[i] + ", ";
-					}
-					send = send.substring(0, send.length - 2);
-					api.sendMessage(send, message.threadID);
-				} else if (split[0] === '!addemote' && split.length === 3) {
+				if (split[0] === '!addemote' && split.length === 3) {
 					var emotename = split[1];
 					var url = split[2];
 					custom.emotes[emotename] = '';
@@ -160,13 +160,14 @@ login({
 							// maybe we don't have enough permission
 							console.error("Error occurred while trying to remove file");
 						} else {
-							console.info(`removed`);
+							console.info('removed');
+							api.sendMessage("Emote deleted!", message.threadID);
 						}
 					});
 					delete custom.emotes[emotename];
 					var customJSONstr = JSON.stringify(custom);
 					updateJSON();
-					api.sendMessage("Emote deleted!", message.threadID);
+
 				} else if (split[0] === '!mod' && split.length === 3) {
 					var name = split[1] + " " + split[2];
 					api.getUserID(name, (err, data) => {
