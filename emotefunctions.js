@@ -9,9 +9,9 @@ var open = Promise.promisify(fs.open);
 var close = Promise.promisify(fs.close);
 
 const globalEmotes = require('./global.json');
-const subs = require('./subs.json');
-const bttv = require('./bttv.json');
-const custom = require('./custom.json');
+const subEmotes = require('./subs.json');
+const bttvEmotes = require('./bttv.json');
+const customEmotes = require('./custom.json');
 
 var downloadImage = function(url, pathname) {
 	return new Promise(function(resolve, reject) {
@@ -35,12 +35,12 @@ var generateURL = function(name) {
 		// console.log('emote is global')
 		imageID = globalEmotes.emotes[name].image_id;
 		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
-	} else if (subs.emotes.find(obj => obj.code === name)) {
+	} else if (subEmotes.emotes.find(obj => obj.code === name)) {
 		// console.log('emote is subsonly')
-		imageID = subs.emotes.find(obj => obj.code === name).image_id;
+		imageID = subEmotes.emotes.find(obj => obj.code === name).image_id;
 		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
-	} else if (bttv.emotes.find(obj => obj.code === name)) {
-		imageID = bttv.emotes.find(obj => obj.code === name).id
+	} else if (bttvEmotes.emotes.find(obj => obj.code === name)) {
+		imageID = bttvEmotes.emotes.find(obj => obj.code === name).id
 		url = 'https://cdn.betterttv.net/emote/' + imageID + '/2x';
 	} else {
 		url = 'a'; //makes wget error out

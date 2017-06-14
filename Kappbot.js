@@ -6,9 +6,9 @@ const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 
 const globalEmotes = require('./global.json');
-const subs = require('./subs.json');
-const bttv = require('./bttv.json');
-const custom = require('./custom.json');
+const subEmotes = require('./subs.json');
+const bttvEmotes = require('./bttv.json');
+const customEmotes = require('./custom.json');
 
 const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo', '!echothread'];
 const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
@@ -46,15 +46,15 @@ return readFile('./appstate.json', 'utf8')
 			}
 			
 			function isSubEmote(word) {
-				return (subs.emotes.find(obj => obj.code === word) != null);
+				return (subEmotes.emotes.find(obj => obj.code === word) != null);
 			}
 			
 			function isBTTVEmote(word) {
-				return (bttv.emotes.find(obj => obj.code === word) != null);
+				return (bttvEmotes.emotes.find(obj => obj.code === word) != null);
 			}
 			
 			function isCustomEmote(word) {
-				return (globalEmotes.emotes[word] != null);
+				return (customEmotes.emotes[word] != null);
 			}
 
 			function checkForCommands(message) {
@@ -70,7 +70,7 @@ return readFile('./appstate.json', 'utf8')
 					api.sendMessage(send, message.threadID);
 				} else if (message.body === '!customlist') {
 					var send = "Custom emote list: ";
-					Object.keys(custom.emotes).forEach(function(key) {
+					Object.keys(customEmotes.emotes).forEach(function(key) {
 						send += key + ', ';
 					});
 					send = send.substring(0, send.length - 2);
@@ -97,25 +97,24 @@ return readFile('./appstate.json', 'utf8')
 					if (split[0] === '!addemote' && split.length === 4) {
 						var emotename = split[1].toLowerCase();
 						var url = "http://" + split[2] + "/" + split[3];
-						custom.emotes[emotename] = '';
+						customEmotes.emotes[emotename] = '';
 						var emotefilename = __dirname + '/emotes/' + emotename + '.png';
 						return emotefxn.downloadImage(url, emotefilename)
 							.then(() => {
 								api.sendMessage("Emote added!", message.threadID);
-								writeFile('./custom.json', JSON.stringify(custom))
+								writeFile('./custom.json', JSON.stringify(customEmotes))
 							}).catch(err => {
 								console.error("error while adding emote!");
 							});
 					} else if (split[0] === '!delemote' && split.length === 2) {
-						//custom.emotes.splice(custom.emotes.indexOf(custom.emotes[emotename]), 1);
 						var emotename = split[1];
-						delete custom.emotes[emotename];
+						delete customEmotes.emotes[emotename];
 						var emotefilename = __dirname + '/emotes/' + emotename + '.png';
 
 						return unlink(emotefilename)
 							.then(() => {
 								api.sendMessage("Emote deleted!", message.threadID);
-								writeFile('./custom.json', JSON.stringify(custom))
+								writeFile('./custom.json', JSON.stringify(customEmotes))
 							}).catch(err => {
 								console.error("Error occurred while trying to remove file", err);
 							});
