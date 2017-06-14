@@ -57,11 +57,8 @@ return readFile('./appstate.json', 'utf8')
 				} else if (message.body === '!threadID') {
 					api.sendMessage(message.threadID + "", message.threadID);
 				} else if (split[0] === '!echo' && split.length > 1) {
-					var send = "" + split.join("");
-					for (i = 1; i < split.length; i++) {
-						send += split[i] + " ";
-					}
-					api.sendMessage(send.substring(0, send.length - 1), message.threadID);
+					var send = split.slice(1).join(" ");
+					api.sendMessage(send, message.threadID);
 				} else if (message.body === '!modlist' && split.length === 1) {
 					var send = "Mods: ";
 					api.getUserInfo(modlist, (err, ret) => {
@@ -119,14 +116,11 @@ return readFile('./appstate.json', 'utf8')
 							}
 							if (modlist.includes(data[0].userID)) {
 								modlist.splice(modlist.indexOf(data[0].userID), 1);
+								api.sendMessage("Demod successful!", message.threadID);
 							}
-							api.sendMessage("Delete successful!", message.threadID);
 						});
 					} else if (split[0] === '!echothread' && split.length > 2) {
-						var send = "";
-						for (i = 2; i < split.length; i++) {
-							send += split[i] + " ";
-						}
+						var send = split.slice(2).join(" ");
 						api.sendMessage(send.substring(0, send.length - 1), split[1]);
 					}
 				} else {
@@ -144,7 +138,11 @@ return readFile('./appstate.json', 'utf8')
 							}
 							return acc;
 								//[] below stores result in array?
-						}, []).then((array) => {
+						}, [])
+						.then((arrayofPromises) => {
+						return Promise.all(arrayOfPromises)
+					})
+						.then((array) => {
 							console.log(array);
 							// console.log('exists and pathname is ' + pathname);
 							let msg = {
