@@ -31,8 +31,8 @@ TODO: add prompt for first mod (console) if modlist is empty.
 
 convert modlist to file (not json, just newlines)
 
-Huge thanks to zsoc on #Node.js for helping me throughout the whole project!
+Huge thanks to zsoc and everyone else on #Node.js for helping me throughout the whole project!
 
-
+NOTE: Broken: Promise.all() threw an error! { error: 'Attachment should be a readable stream and not Object.' }
 
 

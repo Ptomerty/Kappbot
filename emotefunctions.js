@@ -1,3 +1,4 @@
+'use strict';
 const Promise = require('bluebird');
 const fs = require('fs');
 const wget = require('wget-improved')
@@ -7,17 +8,12 @@ var writeFile = Promise.promisify(fs.writeFile);
 var open = Promise.promisify(fs.open);
 var close = Promise.promisify(fs.close);
 
-Promise.all([
-	readFile('./global.json', 'utf8'), readFile('./subs.json', 'utf8'),
-	readFile('./bttv.json', 'utf8'), readFile('./custom.json', 'utf8')
-]).then(([file1, file2, file3, file4]) => {
-	globalEmotes = JSON.parse(file1);
-	subs = JSON.parse(file2);
-	bttv = JSON.parse(file3);
-	custom = JSON.parse(file4);
-})
+const globalEmotes = require('./global.json');
+const subs = require('./subs.json');
+const bttv = require('./bttv.json');
+const custom = require('./custom.json');
 
-exports.downloadImage = function(url, pathname) {
+var downloadImage = function(url, pathname) {
 	return new Promise(function(resolve, reject) {
 		return open(pathname, "wx")
 			.then((fd) => {
@@ -32,7 +28,7 @@ exports.downloadImage = function(url, pathname) {
 	});
 }
 
-exports.generateURL = function(name) {
+var generateURL = function(name) {
 	var imageID;
 	var url;
 	if (globalEmotes.emotes[name]) {
@@ -52,7 +48,7 @@ exports.generateURL = function(name) {
 	return url;
 }
 
-exports.getEmoteImageStream = function(name) {
+var getEmoteImageStream = function(name) {
 	const pathname = __dirname + '/emotes/' + name + '.png';
 
 	return new Promise((resolve, reject) => {
@@ -80,3 +76,7 @@ exports.getEmoteImageStream = function(name) {
 			});
 	});
 }
+
+exports.downloadImage = downloadImage;
+exports.generateURL = generateURL;
+exports.getEmoteImageStream = getEmoteImageStream;

@@ -1,8 +1,14 @@
+// 'use strict';
 const Promise = require('bluebird');
 const fs = require('fs');
 const login = Promise.promisify(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
+
+const globalEmotes = require('./global.json');
+const subs = require('./subs.json');
+const bttv = require('./bttv.json');
+const custom = require('./custom.json');
 
 const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo', '!echothread'];
 const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
@@ -13,12 +19,14 @@ var writeFile = Promise.promisify(fs.writeFile);
 var unlink = Promise.promisify(fs.unlink);
 
 
-const fileArr = ['global', 'subs', 'bttv', 'custom', 'appstate']
 
-Promise.map(fileArr, (fileName) => readFile(`./${fileName}.json`, 'utf8'))
-	.map(JSON.parse)
-	.then(([...otherFiles, appstate]) => [...otherFiles, login({appstate})])
-	.then(([globalEmotes, subs, bttv, custom, api]) => {
+return readFile('./appstate.json', 'utf8')
+	.then(JSON.parse)
+	.then((data) =>
+		login({
+			appState: data
+		}))
+	.then((api) => {
 		api.setOptions({
 			logLevel: "silent"
 		});
@@ -134,9 +142,10 @@ Promise.map(fileArr, (fileName) => readFile(`./${fileName}.json`, 'utf8'))
 								custom.emotes[word]) {
 								return acc.concat([emotefxn.getEmoteImageStream(word)])
 							}
-							return acc
+							return acc;
 								//[] below stores result in array?
 						}, []).then((array) => {
+							console.log(array);
 							// console.log('exists and pathname is ' + pathname);
 							let msg = {
 								attachment: array
