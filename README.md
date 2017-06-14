@@ -19,7 +19,7 @@ Convert Mod List to Names, also with promises (required? idk)
 
 change delete to splice.
 
-add !threadID, mod!echo
+add !threadID, mod!echo, mod!echothread
 
 TODO: add prompt for first mod (console) if modlist is empty.
 

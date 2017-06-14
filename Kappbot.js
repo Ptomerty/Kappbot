@@ -4,7 +4,7 @@ const login = Promise.promisify(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 
-const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo'];
+const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo', '!echothread'];
 const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
 const modlist = []; //fill in with your own ID.
 
@@ -33,7 +33,6 @@ Promise.all([
 
 	api.listen((err, message) => { //also thenable?
 		if (err) return console.warn(err);
-		console.log("in api!")
 
 		function sendMsg(array) {
 			// console.log('exists and pathname is ' + pathname);
@@ -93,17 +92,14 @@ Promise.all([
 					api.sendMessage(send, message.threadID);
 				});
 			} else if (modlist.includes(message.senderID)) {
-				console.log("mod command!");
 				//note that addemote and delemote are broken until readfile support
-				if (split[0] === '!addemote' && split.length === 3) {
-					console.log("addemote");
+				if (split[0] === '!addemote' && split.length === 4) {
 					var emotename = split[1];
-					var url = split[2];
+					var url = "http://" + split[2] + "/" + split[3];
 					custom.emotes[emotename] = '';
-					console.log(emotename + " " + url);
-					console.log(custom.emotes);
 					var emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					var customJSONstr = JSON.stringify(custom);
+
 					return emotefxn.downloadImage(url, emotefilename)
 						.then(() => {
 							updateJSON(customJSONstr);
@@ -112,14 +108,19 @@ Promise.all([
 							console.error("error while adding emote!");
 						});
 				} else if (split[0] === '!delemote' && split.length === 2) {
-					custom.emotes.splice(custom.emotes.indexOf(custom.emotes[emotename]), 1);
+					//custom.emotes.splice(custom.emotes.indexOf(custom.emotes[emotename]), 1);
+					var emotename = split[1];
+					delete custom.emotes[emotename];
 					var customJSONstr = JSON.stringify(custom);
-					return unlink(__dirname + '/emotes/' + emotename + '.png')
+					var emotefilename = __dirname + '/emotes/' + emotename + '.png';
+
+					return unlink(emotefilename)
 						.then(() => {
+							console.log('deletd')
 							updateJSON(customJSONstr);
 							api.sendMessage("Emote deleted!", message.threadID);
 						}).catch(err => {
-							console.error("Error occurred while trying to remove file");
+							console.error("Error occurred while trying to remove file", err);
 						});
 
 				} else if (split[0] === '!mod' && split.length === 3) {
@@ -146,15 +147,19 @@ Promise.all([
 					});
 				} else if (split[0] === '!echo' && split.length > 1) {
 					var send = "";
-					for (i = 1; i < split.length(); i++) {
+					for (i = 1; i < split.length; i++) {
 						send += split[i] + " ";
 					}
 					api.sendMessage(send.substring(0, send.length - 1), message.threadID);
+				} else if (split[0] === '!echothread' && split.length > 2) {
+					var send = "";
+					for (i = 2; i < split.length; i++) {
+						send += split[i] + " ";
+					}
+					api.sendMessage(send.substring(0, send.length - 1), split[1]);
 				}
 			}
 		}
-		console.log(message.body);
-		console.log(message.attachments);
 		if (typeof message.body === 'string' && message.body !== undefined) {
 			checkForCommands(message);
 			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
