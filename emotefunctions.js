@@ -35,15 +35,15 @@ exports.downloadImage = function(url, pathname) {
 exports.generateURL = function(name) {
 	var imageID;
 	var url;
-	if (globalEmotes.emotes[name] !== undefined) {
+	if (globalEmotes.emotes[name]) {
 		// console.log('emote is global')
 		imageID = globalEmotes.emotes[name].image_id;
 		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
-	} else if (subs.emotes.find(obj => obj.code === name) !== undefined) {
+	} else if (subs.emotes.find(obj => obj.code === name)) {
 		// console.log('emote is subsonly')
 		imageID = subs.emotes.find(obj => obj.code === name).image_id;
 		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
-	} else if (bttv.emotes.find(obj => obj.code === name) !== undefined) {
+	} else if (bttv.emotes.find(obj => obj.code === name)) {
 		imageID = bttv.emotes.find(obj => obj.code === name).id
 		url = 'https://cdn.betterttv.net/emote/' + imageID + '/2x';
 	} else {
