@@ -35,7 +35,7 @@ return readFile('./appstate.json', 'utf8')
 			if (err) return console.warn(err);
 			
 			function cleanMessage(msg) {
-				return message
+				return msg
 					.replace(/[^\w\s]|_/g, "")
 					.replace(/\s+/g, " ")
 					.toLowerCase();
