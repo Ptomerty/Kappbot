@@ -4,15 +4,15 @@ const login = Promise.promisify(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 
-const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!modcommands'];
-const commands = ['!id', '!ping', '!customlist', '!commands', '!modlist'];
+const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo'];
+const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
 const modlist = []; //fill in with your own ID.
 
 var readFile = Promise.promisify(fs.readFile);
 var writeFile = Promise.promisify(fs.writeFile);
 var unlink = Promise.promisify(fs.unlink);
 
-let globalEmotes, subs, bttv, custom
+let globalEmotes, subs, bttv, custom;
 
 Promise.all([
 	readFile('./global.json', 'utf8'), readFile('./subs.json', 'utf8'),
@@ -46,7 +46,7 @@ Promise.all([
 		function checkForCommands(message) {
 
 			function updateJSON(newstr) {
-				writeFile('custom.json', newstr)
+				return writeFile('custom.json', newstr)
 					.then(() => {
 						return readFile('custom.json', 'utf8')
 					}).then((newdata) => {
@@ -80,38 +80,47 @@ Promise.all([
 				api.sendMessage(send, message.threadID);
 			} else if (message.body === '!ping') {
 				api.sendMessage("pong", message.threadID);
+			} else if (message.body === '!threadID') {
+				api.sendMessage(message.threadID + "", message.threadID);
 			} else if (message.body === '!modlist' && split.length === 1) {
-				var send = "Mod IDs: ";
-				for (i = 0; i < modlist.length; i++) {
-					send += modlist[i] + ", ";
-				}
-				send = send.substring(0, send.length - 2);
-				api.sendMessage(send, message.threadID);
+				var send = "Mods: ";
+				api.getUserInfo(modlist, (err, ret) => {
+					if (err) return console.error(err);
+					for (var prop in ret) {
+						send += ret[prop].name + ", ";
+					}
+					send = send.substring(0, send.length - 2);
+					api.sendMessage(send, message.threadID);
+				});
 			} else if (modlist.includes(message.senderID)) {
+				console.log("mod command!");
 				//note that addemote and delemote are broken until readfile support
 				if (split[0] === '!addemote' && split.length === 3) {
+					console.log("addemote");
 					var emotename = split[1];
 					var url = split[2];
 					custom.emotes[emotename] = '';
+					console.log(emotename + " " + url);
+					console.log(custom.emotes);
+					var emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					var customJSONstr = JSON.stringify(custom);
-					Promise.try(
-						emotefxn.downloadImage(url, __dirname + '/emotes/' + emotename + '.png');
-					).then(() => {
-						updateJSON(__dirname + '/emotes/' + emotename + '.png');
-					}).catch(err => {
-						console.error("error while adding emote!");
-					});
-					api.sendMessage("Emote added!", message.threadID);
+					return emotefxn.downloadImage(url, emotefilename)
+						.then(() => {
+							updateJSON(customJSONstr);
+							api.sendMessage("Emote added!", message.threadID);
+						}).catch(err => {
+							console.error("error while adding emote!");
+						});
 				} else if (split[0] === '!delemote' && split.length === 2) {
 					custom.emotes.splice(custom.emotes.indexOf(custom.emotes[emotename]), 1);
 					var customJSONstr = JSON.stringify(custom);
-					Promise.try(
-						unlink(__dirname + '/emotes/' + emotename + '.png');
-					).then(() => {
-						updateJSON();
-					}).catch(err => {
-						console.error("Error occurred while trying to remove file");
-					});
+					return unlink(__dirname + '/emotes/' + emotename + '.png')
+						.then(() => {
+							updateJSON(customJSONstr);
+							api.sendMessage("Emote deleted!", message.threadID);
+						}).catch(err => {
+							console.error("Error occurred while trying to remove file");
+						});
 
 				} else if (split[0] === '!mod' && split.length === 3) {
 					var name = split[1] + " " + split[2];
@@ -135,12 +144,18 @@ Promise.all([
 						}
 						api.sendMessage("Delete successful!", message.threadID);
 					});
+				} else if (split[0] === '!echo' && split.length > 1) {
+					var send = "";
+					for (i = 1; i < split.length(); i++) {
+						send += split[i] + " ";
+					}
+					api.sendMessage(send.substring(0, send.length - 1), message.threadID);
 				}
 			}
 		}
-
-
-		if (message.body !== undefined && typeof message.body === 'string') {
+		console.log(message.body);
+		console.log(message.attachments);
+		if (typeof message.body === 'string' && message.body !== undefined) {
 			checkForCommands(message);
 			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
 				.replace(/\s+/g, " ").toLowerCase();

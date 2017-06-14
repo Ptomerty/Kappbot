@@ -19,32 +19,16 @@ Promise.all([
 
 var downloadImage = function(url, pathname) {
 	return new Promise(function(resolve, reject) {
-		//PROMISIFY ALL OF THESE UGH
-		//open.then(close).then(wget)?
-		Promise.try(
-			open(pathname, "wx");
-		).then((fd) => {
-			return close(fd);
-		}).then(() => {
-			wget.download(url, pathname)
-				.on('error', reject)
-				.on('end', resolve);
-		}).catch(err => {
-			reject(err);
-		});
-		// fs.open(pathname, "wx", function(err, fd) {
-		// 	if (err) {
-		// 		reject(err);
-		// 	}
-		// 	fs.close(fd, function(err) {
-		// 		if (err) {
-		// 			reject(err);
-		// 		}
-		// 		wget.download(url, pathname)
-		// 			.on('error', reject)
-		// 			.on('end', resolve);
-		// 	});
-		// });
+		return open(pathname, "wx")
+			.then((fd) => {
+				return close(fd);
+			}).then(() => {
+				wget.download(url, pathname)
+					.on('error', reject)
+					.on('end', resolve);
+			}).catch(err => {
+				reject(err);
+			});
 	});
 }
 
@@ -83,7 +67,7 @@ var getEmoteImageStream = function(name) {
 							resolve(stream);
 						})
 						.catch(err => {
-							console.error('error in downloading!', err);
+							console.error('error during downloading!', err);
 						});
 				} else {
 					reject(err);
