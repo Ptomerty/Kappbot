@@ -27,14 +27,6 @@ Promise.map(fileArr, (fileName) => readFile(`./${fileName}.json`, 'utf8'))
 			if (err) return console.warn(err);
 
 			function checkForCommands(message) {
-
-				function updateJSON(newstr) {
-					return writeFile('custom.json', newstr)
-						.then(() => readFile('custom.json', 'utf8'))
-						.then((newdata) => {
-							custom = JSON.parse(newdata);
-						});
-				}
 				var split = message.body.split(" ");
 
 				if (message.body === '!id') {
@@ -79,12 +71,10 @@ Promise.map(fileArr, (fileName) => readFile(`./${fileName}.json`, 'utf8'))
 						var url = "http://" + split[2] + "/" + split[3];
 						custom.emotes[emotename] = '';
 						var emotefilename = __dirname + '/emotes/' + emotename + '.png';
-						var customJSONstr = JSON.stringify(custom);
-
 						return emotefxn.downloadImage(url, emotefilename)
 							.then(() => {
-								updateJSON(customJSONstr);
 								api.sendMessage("Emote added!", message.threadID);
+								writeFile('./custom.json', JSON.stringify(custom))
 							}).catch(err => {
 								console.error("error while adding emote!");
 							});
@@ -92,14 +82,12 @@ Promise.map(fileArr, (fileName) => readFile(`./${fileName}.json`, 'utf8'))
 						//custom.emotes.splice(custom.emotes.indexOf(custom.emotes[emotename]), 1);
 						var emotename = split[1];
 						delete custom.emotes[emotename];
-						var customJSONstr = JSON.stringify(custom);
 						var emotefilename = __dirname + '/emotes/' + emotename + '.png';
 
 						return unlink(emotefilename)
 							.then(() => {
-								console.log('deletd')
-								updateJSON(customJSONstr);
 								api.sendMessage("Emote deleted!", message.threadID);
+								writeFile('./custom.json', JSON.stringify(custom))
 							}).catch(err => {
 								console.error("Error occurred while trying to remove file", err);
 							});
