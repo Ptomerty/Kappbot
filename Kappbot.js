@@ -33,6 +33,29 @@ return readFile('./appstate.json', 'utf8')
 
 		api.listen((err, message) => {
 			if (err) return console.warn(err);
+			
+			function cleanMessage(msg) {
+				return message
+					.replace(/[^\w\s]|_/g, "")
+					.replace(/\s+/g, " ")
+					.toLowerCase();
+			}
+			
+			function isGlobalEmote(word) {
+				return (globalEmotes.emotes[word] != null);
+			}
+			
+			function isSubEmote(word) {
+				return (subs.emotes.find(obj => obj.code === word) != null);
+			}
+			
+			function isBTTVEmote(word) {
+				return (bttv.emotes.find(obj => obj.code === word) != null);
+			}
+			
+			function isCustomEmote(word) {
+				return (globalEmotes.emotes[word] != null);
+			}
 
 			function checkForCommands(message) {
 				var split = message.body.split(" ");
@@ -125,31 +148,22 @@ return readFile('./appstate.json', 'utf8')
 					}
 				} else {
 					//eventually move to another function?
-					var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
-						.replace(/\s+/g, " ").toLowerCase();
-					const splitWords = cleanedMsg.split(" ");
-					Promise.reduce(splitWords, (acc, word) => {
-							if (acc.length > 5) return acc;
-							if (globalEmotes.emotes[word] ||
-								subs.emotes.find(obj => obj.code === word) !== undefined ||
-								bttv.emotes.find(obj => obj.code === word) !== undefined ||
-								custom.emotes[word]) {
-								return acc.concat([emotefxn.getEmoteImageStream(word)])
-							}
-							return acc;
-								//[] below stores result in array?
-						}, [])
-						.then((array) => {
-							console.log(array);
-							// console.log('exists and pathname is ' + pathname);
-							let msg = {
-								attachment: array
-							}
-							api.sendMessage(msg, message.threadID);
-						})
-						.catch(function(err) {
+					let cleanedMsg = cleanMessage(message.body);
+					let splitWords = cleanedMsg.split(" ");
+					
+					return Promise.filter(words, (word) => {
+						return (isGlobalEmote(word) || isSubEmote(word) || isBTTVEmote(word) || isCustomEmote(word));
+					}).then((emoteWords) => {
+						return emoteWorsd.slice(0,5); //only return 5 in order
+					}).map((emoteWord) => {
+						return emotefxn.getEmoteImageStream(emoteWord);
+					}).then((imageStreams) => {
+						return api.sendMessage({
+							attachment: imageStreams
+						}, message.threadID);
+					}).catch(function(err) {
 							console.error('Promise.all() threw an error!', err);
-						});
+					});
 				}
 			}
 			if (typeof message.body === 'string' && message.body !== undefined) {
