@@ -151,10 +151,10 @@ return readFile('./appstate.json', 'utf8')
 					let cleanedMsg = cleanMessage(message.body);
 					let splitWords = cleanedMsg.split(" ");
 					
-					return Promise.filter(words, (word) => {
+					return Promise.filter(splitWords, (word) => {
 						return (isGlobalEmote(word) || isSubEmote(word) || isBTTVEmote(word) || isCustomEmote(word));
 					}).then((emoteWords) => {
-						return emoteWorsd.slice(0,5); //only return 5 in order
+						return emoteWords.slice(0,5); //only return 5 in order
 					}).map((emoteWord) => {
 						return emotefxn.getEmoteImageStream(emoteWord);
 					}).then((imageStreams) => {
