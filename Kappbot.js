@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
-const fs = require("fs");
-const login = Promise.promisify(require("facebook-chat-api"));
+const fs = require('fs');
+const login = Promise.promisify(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 
@@ -10,6 +10,7 @@ const modlist = []; //fill in with your own ID.
 
 var readFile = Promise.promisify(fs.readFile);
 var writeFile = Promise.promisify(fs.writeFile);
+var unlink = Promise.promisify(fs.unlink);
 
 let globalEmotes, subs, bttv, custom
 
@@ -17,10 +18,10 @@ Promise.all([
 	readFile('./global.json', 'utf8'), readFile('./subs.json', 'utf8'),
 	readFile('./bttv.json', 'utf8'), readFile('./custom.json', 'utf8')
 ]).then(([file1, file2, file3, file4]) => {
-	globalEmotes = file1;
-	subs = file2;
-	bttv = file3;
-	custom = file4;
+	globalEmotes = JSON.parse(file1);
+	subs = JSON.parse(file2);
+	bttv = JSON.parse(file3);
+	custom = JSON.parse(file4);
 }).then(() => {
 	return login({
 		appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
@@ -48,8 +49,8 @@ Promise.all([
 				writeFile('custom.json', newstr)
 					.then(() => {
 						return readFile('custom.json', 'utf8')
-					}).then(function(newdata) {
-						custom = newdata;
+					}).then((newdata) => {
+						custom = JSON.parse(newdata);
 					});
 				//readfile here
 			}
@@ -78,7 +79,7 @@ Promise.all([
 				send = send.substring(0, send.length - 2);
 				api.sendMessage(send, message.threadID);
 			} else if (message.body === '!ping') {
-				api.sendMessage("Hello!", message.threadID);
+				api.sendMessage("pong", message.threadID);
 			} else if (message.body === '!modlist' && split.length === 1) {
 				var send = "Mod IDs: ";
 				for (i = 0; i < modlist.length; i++) {
@@ -93,25 +94,24 @@ Promise.all([
 					var url = split[2];
 					custom.emotes[emotename] = '';
 					var customJSONstr = JSON.stringify(custom);
-					wget.download(url, __dirname + '/emotes/' + emotename + '.png');
-					updateJSON();
+					Promise.try(
+						emotefxn.downloadImage(url, __dirname + '/emotes/' + emotename + '.png');
+					).then(() => {
+						updateJSON(__dirname + '/emotes/' + emotename + '.png');
+					}).catch(err => {
+						console.error("error while adding emote!");
+					});
 					api.sendMessage("Emote added!", message.threadID);
 				} else if (split[0] === '!delemote' && split.length === 2) {
-					fs.unlink(__dirname + '/emotes/' + emotename + '.png', function(err) {
-						if (err && err.code == 'ENOENT') {
-							// file doens't exist
-							console.info("File doesn't exist, won't remove it.");
-						} else if (err) {
-							// maybe we don't have enough permission
-							console.error("Error occurred while trying to remove file");
-						} else {
-							console.info('removed');
-							api.sendMessage("Emote deleted!", message.threadID);
-						}
-					});
-					delete custom.emotes[emotename];
+					custom.emotes.splice(custom.emotes.indexOf(custom.emotes[emotename]), 1);
 					var customJSONstr = JSON.stringify(custom);
-					updateJSON();
+					Promise.try(
+						unlink(__dirname + '/emotes/' + emotename + '.png');
+					).then(() => {
+						updateJSON();
+					}).catch(err => {
+						console.error("Error occurred while trying to remove file");
+					});
 
 				} else if (split[0] === '!mod' && split.length === 3) {
 					var name = split[1] + " " + split[2];
@@ -131,7 +131,7 @@ Promise.all([
 							console.error(err);
 						}
 						if (modlist.includes(data[0].userID)) {
-							modlist.splice[modlist.indexOf(data[0].userID), 1];
+							modlist.splice(modlist.indexOf(data[0].userID), 1);
 						}
 						api.sendMessage("Delete successful!", message.threadID);
 					});

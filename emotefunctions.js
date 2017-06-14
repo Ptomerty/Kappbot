@@ -4,34 +4,47 @@ const wget = require('wget-improved')
 
 var readFile = Promise.promisify(fs.readFile);
 var writeFile = Promise.promisify(fs.writeFile);
+var open = Promise.promisify(fs.open);
+var close = Promise.promisify(fs.close);
 
 Promise.all([
 	readFile('./global.json', 'utf8'), readFile('./subs.json', 'utf8'),
 	readFile('./bttv.json', 'utf8'), readFile('./custom.json', 'utf8')
 ]).then(([file1, file2, file3, file4]) => {
-	globalEmotes = file1;
-	subs = file2;
-	bttv = file3;
-	custom = file4;
+	globalEmotes = JSON.parse(file1);
+	subs = JSON.parse(file2);
+	bttv = JSON.parse(file3);
+	custom = JSON.parse(file4);
 })
 
 var downloadImage = function(url, pathname) {
 	return new Promise(function(resolve, reject) {
 		//PROMISIFY ALL OF THESE UGH
 		//open.then(close).then(wget)?
-		fs.open(pathname, "wx", function(err, fd) {
-			if (err) {
-				reject(err);
-			}
-			fs.close(fd, function(err) {
-				if (err) {
-					reject(err);
-				}
-				wget.download(url, pathname)
-					.on('error', reject)
-					.on('end', resolve);
-			});
+		Promise.try(
+			open(pathname, "wx");
+		).then((fd) => {
+			return close(fd);
+		}).then(() => {
+			wget.download(url, pathname)
+				.on('error', reject)
+				.on('end', resolve);
+		}).catch(err => {
+			reject(err);
 		});
+		// fs.open(pathname, "wx", function(err, fd) {
+		// 	if (err) {
+		// 		reject(err);
+		// 	}
+		// 	fs.close(fd, function(err) {
+		// 		if (err) {
+		// 			reject(err);
+		// 		}
+		// 		wget.download(url, pathname)
+		// 			.on('error', reject)
+		// 			.on('end', resolve);
+		// 	});
+		// });
 	});
 }
 
