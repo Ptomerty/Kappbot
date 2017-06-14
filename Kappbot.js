@@ -139,9 +139,6 @@ return readFile('./appstate.json', 'utf8')
 							return acc;
 								//[] below stores result in array?
 						}, [])
-						.then((arrayofPromises) => {
-						return Promise.all(arrayOfPromises)
-					})
 						.then((array) => {
 							console.log(array);
 							// console.log('exists and pathname is ' + pathname);
