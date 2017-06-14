@@ -5,20 +5,34 @@ Bot that sends Twitch Emotes to Facebook chats
 -----
 Requires facebook-chat-api, bluebird, wget-improved. (how to package.json?)
 
-Run `saveapp.js`, replacing emails and passwords as needed. Then, run Kappbot.js. (preferably with forever)
+Run `saveapp.js`, replacing emails and passwords as needed. Then, run Kappbot.js.
 
 ### Custom emotes
 -----
-Run `node addemote.js <emotename> <emoteurl>` to add a new emote. To delete, use `node delemote <emotename>`.
+Type `!commands!` or `!modcommands` to list possible commands:
+
+Note: Syntax for `!addemote` is `!addemote [emotename] [basesite] [restofURL]` to avoid FB errors. For example, `!addemote sampleemote i.imgur.com QFCBlMD.jpg` will work.
+
+`!echothread` is used as `!echothread [threadID] [message..]`. 
 
 Custom emote list can be enumerated with `!customlist` in chat.
 
-TODO: Refactor code with promises. This can lead to reading in the JSON files -> logging in -> api.listen.
+done: Refactor code with promises. This can lead to reading in the JSON files -> logging in -> api.listen.
 
 Convert Mod List to Names, also with promises (required? idk) 
 
-add prompt for first mod (console) if modlist is empty.
+change delete to splice.
+
+add !threadID, mod!echo, mod!echothread
+
+promisify addemote? fix first, the image sent afterwards messes up the transmission. WORKAROUND: splice http:// off, replace slash with space
+
+TODO: add prompt for first mod (console) if modlist is empty.
 
 convert modlist to file (not json, just newlines)
 
-promisify addemote?
+Huge thanks to zsoc and everyone else on #Node.js for helping me throughout the whole project!
+
+NOTE: Broken: Promise.all() threw an error! { error: 'Attachment should be a readable stream and not Object.' }
+
+

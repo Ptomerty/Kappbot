@@ -1,227 +1,175 @@
-const fs = require("fs");
-const login = require("facebook-chat-api");
-const wget = require('wget-improved');
+// 'use strict';
 const Promise = require('bluebird');
+const fs = require('fs');
+const login = Promise.promisify(require('facebook-chat-api'));
+const wget = require('wget-improved');
+const emotefxn = require('./emotefunctions.js');
 
 const globalEmotes = require('./global.json');
-const subs = require('./subs.json');
-const bttv = require('./bttv.json');
-const custom = require('./custom.json');
+const subEmotes = require('./subs.json');
+const bttvEmotes = require('./bttv.json');
+const customEmotes = require('./custom.json');
 
-const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!modcommands'];
-const commands = ['!id', '!ping', '!customlist', '!commands', '!modlist'];
+const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo', '!echothread'];
+const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
 const modlist = []; //fill in with your own ID.
 
-login({
-	appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
-}, (err, api) => {
-	if (err) return console.error(err);
+var readFile = Promise.promisify(fs.readFile);
+var writeFile = Promise.promisify(fs.writeFile);
+var unlink = Promise.promisify(fs.unlink);
 
-	api.setOptions({
-		logLevel: "silent"
-	});
 
-	api.listen((err, message) => {
-		if (err) return console.warn(err);
 
-		function downloadImage(url, pathname) {
-			return new Promise(function(resolve, reject) {
-				fs.open(pathname, "wx", function(err, fd) {
-					if (err) {
-						reject(err);
+return readFile('./appstate.json', 'utf8')
+	.then(JSON.parse)
+	.then((data) =>
+		login({
+			appState: data
+		}))
+	.then((api) => {
+		api.setOptions({
+			logLevel: "silent"
+		});
+
+		api.listen((err, message) => {
+			if (err) return console.warn(err);
+			
+			function cleanMessage(msg) {
+				return msg
+					.replace(/[^\w\s]|_/g, "")
+					.replace(/\s+/g, " ")
+					.toLowerCase();
+			}
+			
+			function isGlobalEmote(word) {
+				return (globalEmotes.emotes[word] != null);
+			}
+			
+			function isSubEmote(word) {
+				return (subEmotes.emotes.find(obj => obj.code === word) != null);
+			}
+			
+			function isBTTVEmote(word) {
+				return (bttvEmotes.emotes.find(obj => obj.code === word) != null);
+			}
+			
+			function isCustomEmote(word) {
+				return (customEmotes.emotes[word] != null);
+			}
+
+			function checkForCommands(message) {
+				var split = message.body.split(" ");
+
+				if (message.body === '!id') {
+					api.sendMessage("Your ID is " + message.senderID, message.threadID);
+				} else if (message.body === '!commands') {
+					var send = "Commands: " + commands.join(', ');
+					api.sendMessage(send, message.threadID);
+				} else if (message.body === '!modcommands') {
+					var send = "Mod Commands: " + modcommands.join(', ');
+					api.sendMessage(send, message.threadID);
+				} else if (message.body === '!customlist') {
+					var send = "Custom emote list: ";
+					Object.keys(customEmotes.emotes).forEach(function(key) {
+						send += key + ', ';
+					});
+					send = send.substring(0, send.length - 2);
+					api.sendMessage(send, message.threadID);
+				} else if (message.body === '!ping') {
+					api.sendMessage("pong", message.threadID);
+				} else if (message.body === '!threadID') {
+					api.sendMessage(message.threadID + "", message.threadID);
+				} else if (split[0] === '!echo' && split.length > 1) {
+					var send = split.slice(1).join(" ");
+					api.sendMessage(send, message.threadID);
+				} else if (message.body === '!modlist' && split.length === 1) {
+					var send = "Mods: ";
+					api.getUserInfo(modlist, (err, ret) => {
+						if (err) return console.error(err);
+						for (var prop in ret) {
+							send += ret[prop].name + ", ";
+						}
+						send = send.substring(0, send.length - 2);
+						api.sendMessage(send, message.threadID);
+					});
+				} else if (modlist.includes(message.senderID)) {
+					//note that addemote and delemote are broken until readfile support
+					if (split[0] === '!addemote' && split.length === 4) {
+						var emotename = split[1].toLowerCase();
+						var url = "http://" + split[2] + "/" + split[3];
+						customEmotes.emotes[emotename] = '';
+						var emotefilename = __dirname + '/emotes/' + emotename + '.png';
+						return emotefxn.downloadImage(url, emotefilename)
+							.then(() => {
+								api.sendMessage("Emote added!", message.threadID);
+								writeFile('./custom.json', JSON.stringify(customEmotes))
+							}).catch(err => {
+								console.error("error while adding emote!");
+							});
+					} else if (split[0] === '!delemote' && split.length === 2) {
+						var emotename = split[1];
+						delete customEmotes.emotes[emotename];
+						var emotefilename = __dirname + '/emotes/' + emotename + '.png';
+
+						return unlink(emotefilename)
+							.then(() => {
+								api.sendMessage("Emote deleted!", message.threadID);
+								writeFile('./custom.json', JSON.stringify(customEmotes))
+							}).catch(err => {
+								console.error("Error occurred while trying to remove file", err);
+							});
+
+					} else if (split[0] === '!mod' && split.length === 3) {
+						var name = split[1] + " " + split[2];
+						api.getUserID(name, (err, data) => {
+							if (err) {
+								api.sendMessage("Lookup failed, exiting.", message.threadID);
+								console.error(err);
+							}
+							modlist.push(data[0].userID);
+							api.sendMessage("Mod successful!", message.threadID);
+						});
+					} else if (split[0] === '!demod' && split.length === 3) {
+						var name = split[1] + " " + split[2];
+						api.getUserID(name, (err, data) => {
+							if (err) {
+								api.sendMessage("Lookup failed, exiting.", message.threadID);
+								console.error(err);
+							}
+							if (modlist.includes(data[0].userID)) {
+								modlist.splice(modlist.indexOf(data[0].userID), 1);
+								api.sendMessage("Demod successful!", message.threadID);
+							}
+						});
+					} else if (split[0] === '!echothread' && split.length > 2) {
+						var send = split.slice(2).join(" ");
+						api.sendMessage(send.substring(0, send.length - 1), split[1]);
 					}
-					fs.close(fd, function(err) {
-						if (err) {
-							reject(err);
-						}
-						wget.download(url, pathname)
-							.on('error', reject)
-							.on('end', resolve);
-					});
-				});
-			});
-		}
-
-		function generateURL(name) {
-			var imageID;
-			var url;
-			if (globalEmotes.emotes[name] !== undefined) {
-				// console.log('emote is global')
-				imageID = globalEmotes.emotes[name].image_id;
-				url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
-			} else if (subs.emotes.find(obj => obj.code === name) !== undefined) {
-				// console.log('emote is subsonly')
-				imageID = subs.emotes.find(obj => obj.code === name).image_id;
-				url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
-			} else if (bttv.emotes.find(obj => obj.code === name) !== undefined) {
-				imageID = bttv.emotes.find(obj => obj.code === name).id
-				url = 'https://cdn.betterttv.net/emote/' + imageID + '/2x';
-			} else {
-				url = 'a'; //makes wget error out
-			}
-			return url;
-		}
-
-		function getEmoteImageStream(name) {
-			const pathname = __dirname + '/emotes/' + name + '.png';
-
-			return new Promise((resolve, reject) => {
-				const stream = fs.createReadStream(pathname);
-				//ENOENT thrown here!
-				stream.on('error', function(error) {
-						if (error.code == 'ENOENT') {
-							const url = generateURL(name);
-							return downloadImage(url, pathname)
-								.then(() => {
-									const stream = fs.createReadStream(pathname);
-									resolve(stream);
-								})
-								.catch(err => {
-									console.error('error in downloading!', err);
-								});
-						} else {
-							reject(err);
-						}
-					})
-					.on('readable', () => {
-						// console.log('stream should be ready ' + pathname);
-						const stream = fs.createReadStream(pathname);
-						resolve(stream);
-					});
-			});
-		}
-
-		function sendMsg(array) {
-			// console.log('exists and pathname is ' + pathname);
-			let msg = {
-				attachment: array
-			}
-			api.sendMessage(msg, message.threadID);
-		}
-
-		function checkForCommands(message) {
-
-			function updateJSON() {
-				fs.writeFile('custom.json', customJSONstr, (err) => {
-					if (err) throw err;
-					console.log('written!');
-				});
-				//readfile here
-			}
-			var split = message.body.split(" ");
-			if (message.body === '!id') {
-				api.sendMessage("Your ID is " + message.senderID, message.threadID);
-			} else if (message.body === '!commands') {
-				var send = "Commands: ";
-				for (i = 0; i < commands.length; i++) {
-					send += commands[i] + ", ";
-				}
-				send = send.substring(0, send.length - 2);
-				api.sendMessage(send, message.threadID);
-			} else if (message.body === '!modcommands') {
-				var send = "Mod Commands: ";
-				for (i = 0; i < modcommands.length; i++) {
-					send += modcommands[i] + ", ";
-				}
-				send = send.substring(0, send.length - 2);
-				api.sendMessage(send, message.threadID);
-			} else if (message.body === '!customlist') {
-				var send = "Custom emote list: ";
-				Object.keys(custom.emotes).forEach(function(key) {
-					send += key + ', ';
-				});
-				send = send.substring(0, send.length - 2);
-				api.sendMessage(send, message.threadID);
-			} else if (message.body === '!ping') {
-				api.sendMessage("Hello!", message.threadID);
-			} else if (message.body === '!modlist' && split.length === 1) {
-				var send = "Mod IDs: ";
-				for (i = 0; i < modlist.length; i++) {
-					send += modlist[i] + ", ";
-				}
-				send = send.substring(0, send.length - 2);
-				api.sendMessage(send, message.threadID);
-			} else if (modlist.includes(message.senderID)) {
-				//note that addemote and delemote are broken until readfile support
-				if (split[0] === '!addemote' && split.length === 3) {
-					var emotename = split[1];
-					var url = split[2];
-					custom.emotes[emotename] = '';
-					var customJSONstr = JSON.stringify(custom);
-					wget.download(url, __dirname + '/emotes/' + emotename + '.png');
-					updateJSON();
-					api.sendMessage("Emote added!", message.threadID);
-				} else if (split[0] === '!delemote' && split.length === 2) {
-					fs.unlink(__dirname + '/emotes/' + emotename + '.png', function(err) {
-						if (err && err.code == 'ENOENT') {
-							// file doens't exist
-							console.info("File doesn't exist, won't remove it.");
-						} else if (err) {
-							// maybe we don't have enough permission
-							console.error("Error occurred while trying to remove file");
-						} else {
-							console.info('removed');
-							api.sendMessage("Emote deleted!", message.threadID);
-						}
-					});
-					delete custom.emotes[emotename];
-					var customJSONstr = JSON.stringify(custom);
-					updateJSON();
-
-				} else if (split[0] === '!mod' && split.length === 3) {
-					var name = split[1] + " " + split[2];
-					api.getUserID(name, (err, data) => {
-						if (err) {
-							api.sendMessage("Lookup failed, exiting.", message.threadID);
-							console.error(err);
-						}
-						modlist.push(data[0].userID);
-						api.sendMessage("Mod successful!", message.threadID);
-					});
-				} else if (split[0] === '!demod' && split.length === 3) {
-					var name = split[1] + " " + split[2];
-					api.getUserID(name, (err, data) => {
-						if (err) {
-							api.sendMessage("Lookup failed, exiting.", message.threadID);
-							console.error(err);
-						}
-						if (modlist.includes(data[0].userID)) {
-							delete modlist[modlist.indexOf(data[0].userID)];
-						}
-						api.sendMessage("Delete successful!", message.threadID);
+				} else {
+					//eventually move to another function?
+					let cleanedMsg = cleanMessage(message.body);
+					let splitWords = cleanedMsg.split(" ");
+					
+					return Promise.filter(splitWords, (word) => {
+						return (isGlobalEmote(word) || isSubEmote(word) || isBTTVEmote(word) || isCustomEmote(word));
+					}).then((emoteWords) => {
+						return emoteWords.slice(0,5); //only return 5 in order
+					}).map((emoteWord) => {
+						return emotefxn.getEmoteImageStream(emoteWord);
+					}).then((imageStreams) => {
+						return api.sendMessage({
+							attachment: imageStreams
+						}, message.threadID);
+					}).catch(function(err) {
+							console.error('Promise.all() threw an error!', err);
 					});
 				}
 			}
-		}
-
-
-		if (message.body !== undefined && typeof message.body === 'string') {
-			checkForCommands(message);
-			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
-				.replace(/\s+/g, " ").toLowerCase();
-			var splitWords = cleanedMsg.split(" ");
-			var counter = 0;
-			var sendArray = [];
-			for (var i = 0; i < splitWords.length; i++) {
-				var name = splitWords[i];
-				// console.log('emote exists!')
-				if (globalEmotes.emotes[name] !== undefined ||
-					subs.emotes.find(obj => obj.code === name) !== undefined ||
-					bttv.emotes.find(obj => obj.code === name) !== undefined ||
-					custom.emotes[name] !== undefined) {
-					sendArray.push(getEmoteImageStream(name));
-					counter++;
-					if (counter >= 5) {
-						//prevent spam
-						break;
-					}
-				}
+			if (typeof message.body === 'string' && message.body !== undefined) {
+				checkForCommands(message);
 			}
-			Promise.all(sendArray)
-				.then(sendMsg)
-				.catch(function(err) {
-					console.error('Promise.all() threw an error!', err);
-				});
-		}
-	});
-});
+		}); //api.listen
+
+	}).catch((err) => {
+		console.error("Error during login/connection to API!", err);
+	}); //login
