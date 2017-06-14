@@ -94,7 +94,7 @@ Promise.all([
 			} else if (modlist.includes(message.senderID)) {
 				//note that addemote and delemote are broken until readfile support
 				if (split[0] === '!addemote' && split.length === 4) {
-					var emotename = split[1];
+					var emotename = split[1].toLowerCase();
 					var url = "http://" + split[2] + "/" + split[3];
 					custom.emotes[emotename] = '';
 					var emotefilename = __dirname + '/emotes/' + emotename + '.png';
