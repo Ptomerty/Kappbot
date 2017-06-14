@@ -22,7 +22,6 @@ Promise.all([
 	subs = JSON.parse(file2);
 	bttv = JSON.parse(file3);
 	custom = JSON.parse(file4);
-}).then(() => {
 	return login({
 		appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
 	})
@@ -33,14 +32,6 @@ Promise.all([
 
 	api.listen((err, message) => { //also thenable?
 		if (err) return console.warn(err);
-
-		function sendMsg(array) {
-			// console.log('exists and pathname is ' + pathname);
-			let msg = {
-				attachment: array
-			}
-			api.sendMessage(msg, message.threadID);
-		}
 
 		function checkForCommands(message) {
 
@@ -158,35 +149,35 @@ Promise.all([
 					}
 					api.sendMessage(send.substring(0, send.length - 1), split[1]);
 				}
+			} else {
+				//eventually move to another function?
+				var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
+					.replace(/\s+/g, " ").toLowerCase();
+				const splitWords = cleanedMsg.split(" ");
+				Promise.reduce(splitWords, (acc, word) => {
+						if (acc.length > 5) return acc;
+						if (globalEmotes.emotes[word] ||
+							subs.emotes.find(obj => obj.code === word) !== undefined ||
+							bttv.emotes.find(obj => obj.code === word) !== undefined ||
+							custom.emotes[word]) {
+							return acc.concat([emotefxn.getEmoteImageStream(word)])
+						}
+						return acc
+							//[] below stores result in array?
+					}, []).then((array) => {
+						// console.log('exists and pathname is ' + pathname);
+						let msg = {
+							attachment: array
+						}
+						api.sendMessage(msg, message.threadID);
+					})
+					.catch(function(err) {
+						console.error('Promise.all() threw an error!', err);
+					});
 			}
 		}
 		if (typeof message.body === 'string' && message.body !== undefined) {
 			checkForCommands(message);
-			var cleanedMsg = message.body.replace(/[^\w\s]|_/g, "")
-				.replace(/\s+/g, " ").toLowerCase();
-			var splitWords = cleanedMsg.split(" ");
-			let counter = 0;
-			var sendArray = [];
-			for (var i = 0; i < splitWords.length; i++) {
-				var name = splitWords[i];
-				// console.log('emote exists!')
-				if (globalEmotes.emotes[name] !== undefined ||
-					subs.emotes.find(obj => obj.code === name) !== undefined ||
-					bttv.emotes.find(obj => obj.code === name) !== undefined ||
-					custom.emotes[name] !== undefined) {
-					sendArray.push(emotefxn.getEmoteImageStream(name));
-					counter++;
-					if (counter >= 5) {
-						//prevent spam
-						break;
-					}
-				}
-			}
-			Promise.all(sendArray)
-				.then(sendMsg)
-				.catch(function(err) {
-					console.error('Promise.all() threw an error!', err);
-				});
 		}
 	}); //api.listen
 

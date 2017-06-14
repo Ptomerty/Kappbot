@@ -31,6 +31,8 @@ TODO: add prompt for first mod (console) if modlist is empty.
 
 convert modlist to file (not json, just newlines)
 
+Huge thanks to zsoc on #Node.js for helping me throughout the whole project!
+
 
 
 
