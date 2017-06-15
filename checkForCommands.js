@@ -17,7 +17,7 @@ const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo', '!echo
 const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
 var modlist = []; //fill in with your own ID.
 
-exports.checkForCommands = checkForCommands;
+exports.parse = parse;
 
 function cleanMessage(msg) {
 	return msg
@@ -42,7 +42,7 @@ function isCustomEmote(word) {
 	return (customEmotes.emotes[word] != null);
 }
 
-function checkForCommands(api, message) {
+function parse(api, message) {
 	const split = message.body.split(" ");
 
 	if (message.body === '!id') {
