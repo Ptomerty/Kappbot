@@ -22,6 +22,8 @@ Promise.all([
     ])
     .then((modlist, appstate) => {
 	console.log(typeof modlist);
+	console.log(typeof appstate);
+	console.log(appstate.toString());
         return [modlist.toString().split("\n"), JSON.parse(appstate)]
     })
     .then((modlist, data) => {
