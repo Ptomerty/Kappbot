@@ -1,7 +1,7 @@
 // 'use strict';
 const Promise = require('bluebird');
 const fs = require('fs');
-const login = Promise.promisify(require('facebook-chat-api'));
+const login = Promise.promisifyAll(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 const cfc = require('./checkForCommands.js');
