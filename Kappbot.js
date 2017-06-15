@@ -21,6 +21,7 @@ Promise.all([
         readFile('./appstate.json', 'utf8')
     ])
     .then((modlist, appstate) => {
+	console.log(typeof modlist);
         return [modlist.split("\n"), JSON.parse(appstate)]
     })
     .then((modlist, data) => {
