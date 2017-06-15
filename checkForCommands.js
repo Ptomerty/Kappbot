@@ -18,7 +18,7 @@ const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modc
 var modlist = []; //mod IDs go here.
 
 exports.parse = parse;
-exports.setModlist = setModList;
+exports.setModlist = setModlist;
 
 function setModlist(list) {
     modlist = list;
