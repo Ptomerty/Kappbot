@@ -16,7 +16,9 @@ const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
 
-return readFile('./appstate.json', 'utf8')
+Promise.try(function() {
+	readFile('./appstate.json', 'utf8')
+})
 	.then(JSON.parse)
 	.then((data) =>
 		login({
