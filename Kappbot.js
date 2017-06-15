@@ -16,27 +16,33 @@ const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
 
-Promise.try(function() {
-	readFile('./appstate.json', 'utf8')
-})
-	.then(JSON.parse)
-	.then((data) =>
-		login({
-			appState: data
-		}))
-	.then((api) => {
-		api.setOptions({
-			logLevel: "silent"
-		});
+Promise.all([
+        readFile('./modlist', 'utf8'),
+        readFile('./appstate.json', 'utf8')
+    ])
+    .then((modlist, appstate) => {
+        return [modlist.split("\n"), JSON.parse(appstate)]
+    })
+    .then((modlist, data) => {
+        return login({
+            appState: data
+        })
+    })
+    .then((modlist, api) => {
+        api.setOptions({
+            logLevel: "silent"
+        });
 
-		api.listen((err, message) => {
-			if (err) return console.warn(err);
+        cfc.setModlist(modlist);
 
-			if (typeof message.body === 'string' && message.body !== undefined) {
-				cfc.checkForCommands(api, message);
-			}
-		}); //api.listen
+        api.listen((err, message) => {
+            if (err) return console.warn(err);
 
-	}).catch((err) => {
-		console.error("Error during login/connection to API!", err);
-	}); //login
+            if (typeof message.body === 'string' && message.body !== undefined) {
+                cfc.parse(api, message);
+            }
+        }); //api.listen
+
+    }).catch((err) => {
+        console.error("Error during login/connection to API!", err);
+    }); //login
