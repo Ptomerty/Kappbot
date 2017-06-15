@@ -17,35 +17,32 @@ const unlink = Promise.promisify(fs.unlink);
 
 
 Promise.all([
-        readFile('./modlist', 'utf8'),
-        readFile('./appstate.json', 'utf8')
-    ])
-    .then(([modlist, appstate]) => {
-	console.log(typeof modlist);
-	console.log(typeof appstate);
-	console.log(appstate.toString());
-        return [modlist.toString().split("\n"), JSON.parse(appstate)]
-    })
-    .then(([modlist, data]) => {
-        return login({
-            appState: data
-        })
-    })
-    .then(([modlist, api]) => {
-        api.setOptions({
-            logLevel: "silent"
-        });
+		readFile('./modlist', 'utf8'),
+		readFile('./appstate.json', 'utf8')
+	])
+	.then(([modlist, appstate]) => {
+		return [modlist.toString().split("\n"), JSON.parse(appstate)]
+	})
+	.then(([modlist, data]) => {
+		return [modlist, login({
+			appState: data
+		})]
+	})
+	.then(([modlist, api]) => {
+		api.setOptions({
+			logLevel: "silent"
+		});
 
-        cfc.setModlist(modlist);
+		cfc.setModlist(modlist);
 
-        api.listen((err, message) => {
-            if (err) return console.warn(err);
+		api.listen((err, message) => {
+			if (err) return console.warn(err);
 
-            if (typeof message.body === 'string' && message.body !== undefined) {
-                cfc.parse(api, message);
-            }
-        }); //api.listen
+			if (typeof message.body === 'string' && message.body !== undefined) {
+				cfc.parse(api, message);
+			}
+		}); //api.listen
 
-    }).catch((err) => {
-        console.error("Error during login/connection to API!", err);
-    }); //login
+	}).catch((err) => {
+		console.error("Error during login/connection to API!", err);
+	}); //login

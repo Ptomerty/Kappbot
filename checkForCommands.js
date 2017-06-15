@@ -118,6 +118,9 @@ function parse(api, message) {
                 }
                 modlist.push(data[0].userID);
                 api.sendMessage("Mod successful!", message.threadID);
+                Promise.try(function() {
+                    return writeFile('./modlist', modlist.join('\n'));
+                });
             });
         } else if (split[0] === '!demod' && split.length === 3) {
             const name = split[1] + " " + split[2];
@@ -129,6 +132,9 @@ function parse(api, message) {
                 if (modlist.includes(data[0].userID)) {
                     modlist.splice(modlist.indexOf(data[0].userID), 1);
                     api.sendMessage("Demod successful!", message.threadID);
+                    Promise.try(function() {
+                        return writeFile('./modlist', modlist.join('\n'));
+                    });
                 }
             });
         } else if (split[0] === '!echothread' && split.length > 2) {
