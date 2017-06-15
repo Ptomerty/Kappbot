@@ -12,11 +12,11 @@ const customEmotes = require('./custom.json');
 
 const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo', '!echothread'];
 const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
-const modlist = []; //fill in with your own ID.
+var modlist = []; //fill in with your own ID.
 
-var readFile = Promise.promisify(fs.readFile);
-var writeFile = Promise.promisify(fs.writeFile);
-var unlink = Promise.promisify(fs.unlink);
+const readFile = Promise.promisify(fs.readFile);
+const writeFile = Promise.promisify(fs.writeFile);
+const unlink = Promise.promisify(fs.unlink);
 
 
 
