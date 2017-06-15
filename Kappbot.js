@@ -20,18 +20,18 @@ Promise.all([
         readFile('./modlist', 'utf8'),
         readFile('./appstate.json', 'utf8')
     ])
-    .then((modlist, appstate) => {
+    .then(([modlist, appstate]) => {
 	console.log(typeof modlist);
 	console.log(typeof appstate);
 	console.log(appstate.toString());
         return [modlist.toString().split("\n"), JSON.parse(appstate)]
     })
-    .then((modlist, data) => {
+    .then(([modlist, data]) => {
         return login({
             appState: data
         })
     })
-    .then((modlist, api) => {
+    .then(([modlist, api]) => {
         api.setOptions({
             logLevel: "silent"
         });
