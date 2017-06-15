@@ -9,7 +9,7 @@ Run `saveapp.js`, replacing emails and passwords as needed. Then, run Kappbot.js
 
 ### Custom emotes
 -----
-Type `!commands!` or `!modcommands` to list possible commands:
+Type `!commands` or `!modcommands` to list possible commands:
 
 Note: Syntax for `!addemote` is `!addemote [emotename] [basesite] [restofURL]` to avoid FB errors. For example, `!addemote sampleemote i.imgur.com QFCBlMD.jpg` will work.
 
@@ -27,12 +27,15 @@ add !threadID, mod!echo, mod!echothread
 
 promisify addemote? fix first, the image sent afterwards messes up the transmission. WORKAROUND: splice http:// off, replace slash with space
 
+moved to submodules
+
 TODO: add prompt for first mod (console) if modlist is empty.
 
-convert modlist to file (not json, just newlines)
+convert modlist to file (not json, just newlines) (aka require modfile, same thing as custom.json)
 
-Huge thanks to zsoc and everyone else on #Node.js for helping me throughout the whole project!
+make array of commands to functions dealing with commands? would replace if/else block
 
-NOTE: Broken: Promise.all() threw an error! { error: 'Attachment should be a readable stream and not Object.' }
+Huge thanks to zsoc, joepie91, and everyone else on #Node.js for helping me throughout the whole project!
+
 
 
