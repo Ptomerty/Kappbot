@@ -16,22 +16,25 @@ const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
 
-Promise.all([
-		readFile('./modlist', 'utf8'),
-		readFile('./appstate.json', 'utf8')
-	])
-	.then(([modlist, appstate]) => {
-		return [modlist.toString().split("\n"), JSON.parse(appstate)]
+Promise.try(function() {
+		return readFile('./appstate.json', 'utf8')
 	})
-	.then(([modlist, data]) => {
-		return [modlist, login({
+	.then((apps) => {
+		return JSON.parse(apps);
+	})
+	.then((data) =>
+		login({
 			appState: data
-		})]
-	})
-	.then(([modlist, api]) => {
-		api.setOptions({
-			logLevel: "silent"
-		});
+		}))
+	.then((api) => {
+		console.log(typeof api);
+		return [api, readFile('./modlist', 'utf8')]
+	}).then(([api, modlist]) => {
+		return [api, modlist.toString().split("\n")]
+	}).then(([api, modlist]) => {
+		// api.setOptions({
+		// 	logLevel: "silent"
+		// });
 
 		cfc.setModlist(modlist);
 
