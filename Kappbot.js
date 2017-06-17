@@ -15,26 +15,32 @@ const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
+const appstatejson = require('./appstate.json')
 
-return readFile('./appstate.json', 'utf8')
-	.then(JSON.parse)
-	.then((data) =>
-		login({
-			appState: data
-		}))
-	.then((api) => {
-		api.setOptions({
-			logLevel: "silent"
-		});
 
-		api.listen((err, message) => {
-			if (err) return console.warn(err);
+Promise.try(function() {
+	return readFile('./modlist', 'utf8')
+}).then((moddata) => {
+	let modlist = moddata.toString().split("\n")
+	cfc.setModlist(modlist); //doesn't matter, it's sync
+	return login({
+		appState: appstatejson
+	})
+}).then((api) => {
+	Promise.promisifyAll(api);
 
-			if (typeof message.body === 'string' && message.body !== undefined) {
-				cfc.checkForCommands(api, message);
-			}
-		}); //api.listen
+	api.setOptions({
+		logLevel: "silent"
+	});
 
-	}).catch((err) => {
-		console.error("Error during login/connection to API!", err);
-	}); //login
+	api.listen((err, message) => {
+		if (err) return console.warn(err);
+
+		if (typeof message.body === 'string' && message.body !== undefined) {
+			cfc.parse(api, message);
+		}
+	}); //api.listen
+
+}).catch((err) => {
+	console.error("Error during login/connection to API!", err);
+}); //login
