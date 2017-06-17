@@ -20,7 +20,13 @@ var downloadImage = function(url, pathname) {
 				return close(fd);
 			}).then(() => {
 				wget.download(url, pathname)
-					.on('error', reject)
+					.on('error', function(err) {
+						if (err.code === 'EEXIST') {
+							resolve //file exists and has been downloaded
+						} else {
+							reject
+						}
+					})
 					.on('end', resolve);
 			}).catch(err => {
 				reject(err);
