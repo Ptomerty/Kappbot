@@ -9,33 +9,19 @@ Run `saveapp.js`, replacing emails and passwords as needed. Then, run Kappbot.js
 
 ### Custom emotes
 -----
-Type `!commands` or `!modcommands` to list possible commands:
+When the bot first starts, type `!modme` to make yourself the first mod. Note that anyone can type this, so be quick!
 
-Note: Syntax for `!addemote` is `!addemote [emotename] [basesite] [restofURL]` to avoid FB errors. For example, `!addemote sampleemote i.imgur.com QFCBlMD.jpg` will work.
+Type `!commands` or `!modcommands` to list possible commands.
 
-`!echothread` is used as `!echothread [threadID] [message..]`. 
+Note that Facebook's userID API is currently down, so modding/demodding must be done with the person's ID. Simply navigate to their profile and look at their URL, or ask them to type `!id`.
+
+Syntax for `!addemote` is `!addemote [emotename] [basesite] [restofURL]` to avoid FB errors. For example, `!addemote sampleemote i.imgur.com QFCBlMD.jpg` will work.
+
+Syntax for `!echothread` is `!echothread [threadID] [message..]`. 
 
 Custom emote list can be enumerated with `!customlist` in chat.
 
-done: Refactor code with promises. This can lead to reading in the JSON files -> logging in -> api.listen.
-
-Convert Mod List to Names, also with promises (required? idk) 
-
-change delete to splice.
-
-add !threadID, mod!echo, mod!echothread
-
-promisify addemote? fix first, the image sent afterwards messes up the transmission. WORKAROUND: splice http:// off, replace slash with space
-
-moved to submodules
-
-TODO: add prompt for first mod (console) if modlist is empty.
-
-convert modlist to file (not json, just newlines) (aka require modfile, same thing as custom.json)
-
-make array of commands to functions dealing with commands? would replace if/else block
-
-Huge thanks to zsoc, joepie91, and everyone else on #Node.js for helping me throughout the whole project!
+Huge thanks to zsoc, joepie91, charmander, and everyone else on #Node.js for helping me throughout the whole project!
 
 
 

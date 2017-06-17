@@ -111,7 +111,7 @@ function parse(api, message) {
 				});
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
-					const emotename = split[1];
+					const emotename = split[1].toLowerCase();;
 					delete customEmotes.emotes[emotename];
 					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					return unlink(emotefilename)
