@@ -82,7 +82,6 @@ function parse(api, message) {
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!modlist' && split.length === 1) {
 			Promise.try(function() {
-				console.log(modlist);
 				if (modlist[0] == '' || modlist.length === 0) {
 					return "None yet.";
 					api.sendMessage(response, message.threadID);
