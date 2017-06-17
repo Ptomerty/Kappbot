@@ -183,6 +183,7 @@ function parse(api, message) {
 			});
 		}
 	}).catch(err => {
+		api.sendMessage("Misc error during parsing, check console.", message.threadID);
 		console.error("Error during parsing!", err)
 	})
 
