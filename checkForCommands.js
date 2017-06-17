@@ -55,16 +55,16 @@ function parse(api, message) {
 
 		if (message.body === '!id') {
 			api.sendMessage("Your ID is " + message.senderID, message.threadID);
-		} else if (message.body === '!modme') {
-			console.log("modme received!");
-			console.log(modlist.length)
-			if (modlist.length == 0) {
+		} else if (message.body === '!modme' && modlist.length == 1) {
+			if (modlist[0] == '') {
+				modlist[0] = message.senderID;
+			} else {
 				modlist.push(message.senderID);
-				api.sendMessage("You have been made the first mod!", message.threadID);
-				Promise.try(function() {
-					return writeFile('./modlist', modlist.join('\n'));
-				});
 			}
+			api.sendMessage("You have been made the first mod!", message.threadID);
+			Promise.try(function() {
+				return writeFile('./modlist', modlist.join('\n'));
+			});
 		} else if (message.body === '!commands') {
 			const response = "Commands: " + commands.join(', ');
 			api.sendMessage(response, message.threadID);
@@ -83,12 +83,17 @@ function parse(api, message) {
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!modlist' && split.length === 1) {
 			let response = "Mods: ";
-			Promise.try(function() {
-				return api.getUserInfoAsync(modlist)
-			}).then((userarray) => {
-				response += Object.values(ret).map(user => user.name).join(', ');
+			if (modlist[0] == '') {
+				response += "None yet.";
 				api.sendMessage(response, message.threadID);
-			})
+			} else {
+				Promise.try(function() {
+					return api.getUserInfoAsync(modlist)
+				}).then((userarray) => {
+					response += Object.values(userarray).map(user => user.name).join(', ');
+					api.sendMessage(response, message.threadID);
+				})
+			}
 		} else if (modlist.includes(message.senderID)) {
 			//note that addemote and delemote are broken until readfile support
 			if (split[0] === '!addemote' && split.length === 4) {

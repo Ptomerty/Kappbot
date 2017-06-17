@@ -29,8 +29,8 @@ Promise.try(function() {
 		})
 	})
 	.then((api) => {
-		Promise.promisifyAll(api);
-		
+		Promise.promisifyAll(api); //just in case
+
 		api.setOptions({
 			logLevel: "silent"
 		});
