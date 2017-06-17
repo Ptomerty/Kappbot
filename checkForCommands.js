@@ -59,6 +59,8 @@ function parse(api, message) {
 				if (modlist.length == 1) {
 					if (modlist[0] == '') {
 						modlist[0] = message.senderID;
+					} else {
+						return; //break out of promise.try
 					}
 					//else there's already a mod
 				} else { //modlist has length 0
