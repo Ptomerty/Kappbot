@@ -49,18 +49,22 @@ function isCustomEmote(word) {
 
 function parse(api, message) {
 	Promise.promisifyAll(api);
-	
+
 	Promise.try(function() {
 		const split = message.body.split(" ");
 
 		if (message.body === '!id') {
 			api.sendMessage("Your ID is " + message.senderID, message.threadID);
-		} else if (message.body === '!modme' && modlist.length == 0) {
-			modlist.push(message.senderID);
-			api.sendMessage("You have been made the first mod!", message.threadID);
-			Promise.try(function() {
-				return writeFile('./modlist', modlist.join('\n'));
-			});
+		} else if (message.body === '!modme') {
+			console.log("modme received!");
+			console.log(modlist.length)
+			if (modlist.length == 0) {
+				modlist.push(message.senderID);
+				api.sendMessage("You have been made the first mod!", message.threadID);
+				Promise.try(function() {
+					return writeFile('./modlist', modlist.join('\n'));
+				});
+			}
 		} else if (message.body === '!commands') {
 			const response = "Commands: " + commands.join(', ');
 			api.sendMessage(response, message.threadID);
