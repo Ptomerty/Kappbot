@@ -56,9 +56,12 @@ function parse(api, message) {
 			api.sendMessage("Your ID is " + message.senderID, message.threadID);
 		} else if (message.body === '!modme' && modlist.length <= 1) {
 			Promise.try(function() {
-				if (modlist[0] == '') {
-					modlist[0] = message.senderID;
-				} else { //modlist could have length 0
+				if (modlist.length == 1) {
+					if (modlist[0] == '') {
+						modlist[0] = message.senderID;
+					}
+					//else there's already a mod
+				} else { //modlist has length 0
 					modlist.push(message.senderID);
 				}
 				api.sendMessage("You have been made the first mod!", message.threadID);
