@@ -13,8 +13,8 @@ const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
-const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echo', '!echothread'];
-const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands'];
+const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echothread'];
+const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands', '!modme', '!echo'];
 var modlist = []; //mod IDs go here.
 
 exports.parse = parse;
@@ -93,7 +93,7 @@ function parse(api, message) {
 				let response = "Mods: " + listofnames;
 				api.sendMessage(response, message.threadID);
 			})
-		} else if (modlist.includes(message.senderID)) {
+		} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
 			//note that addemote and delemote are broken until readfile support
 			if (split[0] === '!addemote' && split.length === 4) {
 				Promise.try(function() {
@@ -178,7 +178,7 @@ function parse(api, message) {
 					attachment: imageStreams
 				}, message.threadID);
 			}).catch(function(err) {
-				console.error('Emote prasing threw an error!', err);
+				console.error('Emote parsing threw an error!', err);
 			});
 		}
 	}).catch(err => {
