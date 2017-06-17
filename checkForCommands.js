@@ -48,21 +48,20 @@ function isCustomEmote(word) {
 }
 
 function parse(api, message) {
-	Promise.promisifyAll(api);
 
 	Promise.try(function() {
 		const split = message.body.split(" ");
 
 		if (message.body === '!id') {
 			api.sendMessage("Your ID is " + message.senderID, message.threadID);
-		} else if (message.body === '!modme' && modlist.length == 1) {
-			if (modlist[0] == '') {
-				modlist[0] = message.senderID;
-			} else {
-				modlist.push(message.senderID);
-			}
-			api.sendMessage("You have been made the first mod!", message.threadID);
+		} else if (message.body === '!modme' && modlist.length <= 1) {
 			Promise.try(function() {
+				if (modlist[0] == '') {
+					modlist[0] = message.senderID;
+				} else { //modlist could have length 0
+					modlist.push(message.senderID);
+				}
+				api.sendMessage("You have been made the first mod!", message.threadID);
 				return writeFile('./modlist', modlist.join('\n'));
 			});
 		} else if (message.body === '!commands') {
@@ -82,39 +81,37 @@ function parse(api, message) {
 			const response = split.slice(1).join(" ");
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!modlist' && split.length === 1) {
-			let response = "Mods: ";
-			if (modlist[0] == '') {
-				response += "None yet.";
-				api.sendMessage(response, message.threadID);
-			} else {
-				Promise.try(function() {
-					return api.getUserInfoAsync(modlist)
-				}).then((userarray) => {
-					response += Object.values(userarray).map(user => user.name).join(', ');
+			Promise.try(function() {
+				console.log(modlist);
+				if (modlist[0] == '' || modlist.length === 0) {
+					return "None yet.";
 					api.sendMessage(response, message.threadID);
-				})
-			}
+				} else {
+					return api.getUserInfoAsync(modlist)
+						.then((userarray) => Object.values(userarray).map(user => user.name).join(', ')); //return array of names
+				}
+			}).then((listofnames) => {
+				let response = "Mods: " + listofnames;
+				api.sendMessage(response, message.threadID);
+			})
 		} else if (modlist.includes(message.senderID)) {
 			//note that addemote and delemote are broken until readfile support
 			if (split[0] === '!addemote' && split.length === 4) {
-				const emotename = split[1].toLowerCase();
-				const url = "http://" + split[2] + "/" + split[3];
-				customEmotes.emotes[emotename] = '';
-				const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 				Promise.try(function() {
+					const emotename = split[1].toLowerCase();
+					const url = "http://" + split[2] + "/" + split[3];
+					customEmotes.emotes[emotename] = '';
+					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					return emotefxn.downloadImage(url, emotefilename)
 				}).then(() => {
 					api.sendMessage("Emote added!", message.threadID);
 					return writeFile('./custom.json', JSON.stringify(customEmotes))
-				}).catch(err => {
-					//remove eventually
-					console.error("error while adding emote!");
 				});
 			} else if (split[0] === '!delemote' && split.length === 2) {
-				const emotename = split[1];
-				delete customEmotes.emotes[emotename];
-				const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 				Promise.try(function() {
+					const emotename = split[1];
+					delete customEmotes.emotes[emotename];
+					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					return unlink(emotefilename)
 				}).then(() => {
 					api.sendMessage("Emote deleted!", message.threadID);
@@ -123,32 +120,45 @@ function parse(api, message) {
 					console.error("Error occurred while trying to remove file", err);
 				});
 
-			} else if (split[0] === '!mod' && split.length === 3) {
-				const name = split[1] + " " + split[2];
+			} else if (split[0] === '!mod') {
 				Promise.try(function() {
-					return api.getUserIDAsync(name);
-				}).then((data) => {
-					modlist.push(data[0].userID);
+					if (split.length === 2) {
+						return split[1];
+					} else {
+						const name = split[1] + " " + split[2];
+						return api.getUserIDAsync(name)
+							.then((data) => data[0].userID); //return userid
+					}
+				}).then((id) => {
+					modlist.push(id);
 					api.sendMessage("Mod successful!", message.threadID);
 					return writeFile('./modlist', modlist.join('\n'));
 				}).catch(err => {
-					api.sendMessage("Lookup failed, exiting.", message.threadID);
+					api.sendMessage("Adding ID failed, exiting.", message.threadID);
 					console.error(err);
 				});
-			} else if (split[0] === '!demod' && split.length === 3) {
-				const name = split[1] + " " + split[2];
+			} else if (split[0] === '!demod') {
 				Promise.try(function() {
-					return api.getUserIDAsync(name);
-				}).then((data) => {
-					if (modlist.includes(data[0].userID)) {
-						modlist.splice(modlist.indexOf(data[0].userID), 1);
+					if (split.length === 2) {
+						return split[1];
+					} else {
+						const name = split[1] + " " + split[2];
+						return api.getUserIDAsync(name)
+							.then((data) => data[0].userID); //return userid
+					}
+				}).then((id) => {
+					if (modlist.includes(id)) {
+						modlist.splice(modlist.indexOf(id), 1);
 						api.sendMessage("Demod successful!", message.threadID);
 						return writeFile('./modlist', modlist.join('\n'));
+					} else {
+						api.sendMessage("Mod not found.", message.threadID);
 					}
 				}).catch(err => {
-					api.sendMessage("Lookup failed, exiting.", message.threadID);
+					api.sendMessage("Adding ID failed, exiting.", message.threadID);
 					console.error(err);
 				});
+
 			} else if (split[0] === '!echothread' && split.length > 2) {
 				const response = split.slice(2).join(" ");
 				api.sendMessage(response, split[1]);
@@ -169,11 +179,11 @@ function parse(api, message) {
 					attachment: imageStreams
 				}, message.threadID);
 			}).catch(function(err) {
-				console.error('Promise.all() threw an error!', err);
+				console.error('Emote prasing threw an error!', err);
 			});
 		}
 	}).catch(err => {
-		console.error("Error while parsing!", err)
+		console.error("Error during parsing!", err)
 	})
 
 }

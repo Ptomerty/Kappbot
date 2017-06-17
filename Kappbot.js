@@ -16,35 +16,31 @@ const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
 const appstatejson = require('./appstate.json')
-let modlist //ew globals
 
 
 Promise.try(function() {
-		return readFile('./modlist', 'utf8')
+	return readFile('./modlist', 'utf8')
+}).then((moddata) => {
+	let modlist = moddata.toString().split("\n")
+	cfc.setModlist(modlist); //doesn't matter, it's sync
+	return login({
+		appState: appstatejson
 	})
-	.then((moddata) => {
-		modlist = moddata.toString().split("\n")
-		return login({
-			appState: appstatejson
-		})
-	})
-	.then((api) => {
-		Promise.promisifyAll(api); //just in case
+}).then((api) => {
+	Promise.promisifyAll(api);
 
-		api.setOptions({
-			logLevel: "silent"
-		});
+	api.setOptions({
+		logLevel: "silent"
+	});
 
-		cfc.setModlist(modlist);
+	api.listen((err, message) => {
+		if (err) return console.warn(err);
 
-		api.listen((err, message) => {
-			if (err) return console.warn(err);
+		if (typeof message.body === 'string' && message.body !== undefined) {
+			cfc.parse(api, message);
+		}
+	}); //api.listen
 
-			if (typeof message.body === 'string' && message.body !== undefined) {
-				cfc.parse(api, message);
-			}
-		}); //api.listen
-
-	}).catch((err) => {
-		console.error("Error during login/connection to API!", err);
-	}); //login
+}).catch((err) => {
+	console.error("Error during login/connection to API!", err);
+}); //login
