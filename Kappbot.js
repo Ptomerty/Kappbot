@@ -1,7 +1,7 @@
 // 'use strict';
 const Promise = require('bluebird');
 const fs = require('fs');
-const login = Promise.promisifyAll(require('facebook-chat-api'));
+const login = Promise.promisify(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 const cfc = require('./checkForCommands.js');
@@ -16,25 +16,24 @@ const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
 
-Promise.try(function() {
-		return readFile('./appstate.json', 'utf8')
+Promise.all([
+		readFile('./modlist', 'utf8'),
+		readFile('./appstate.json', 'utf8')
+	])
+	.then(([modlist, appstate]) => {
+		return [modlist.toString().split("\n"), JSON.parse(appstate)] //sync?
 	})
-	.then((apps) => {
-		return JSON.parse(apps);
-	})
-	.then((data) =>
-		login({
+	.then(([modlist, data]) => {
+		return [modlist, login({
 			appState: data
-		}))
-	.then((api) => {
-		console.log(typeof api);
-		return [api, readFile('./modlist', 'utf8')]
-	}).then(([api, modlist]) => {
-		return [api, modlist.toString().split("\n")]
-	}).then(([api, modlist]) => {
-		// api.setOptions({
-		// 	logLevel: "silent"
-		// });
+		})]
+	})
+	.then(([modlist, api]) => {
+		console.log(api); //api is now a promise
+		Promise.promisifyAll(api);
+		api.setOptions({
+			logLevel: "silent"
+		});
 
 		cfc.setModlist(modlist);
 

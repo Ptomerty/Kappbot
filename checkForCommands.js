@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const fs = require('fs');
-const login = Promise.promisifyAll(require('facebook-chat-api'));
+const login = Promise.promisify(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 
@@ -48,6 +48,7 @@ function isCustomEmote(word) {
 }
 
 function parse(api, message) {
+	Promise.promisifyAll(api);
 	Promise.try(function() {
 		const split = message.body.split(" ");
 
