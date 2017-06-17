@@ -89,7 +89,6 @@ function parse(api, message) {
 			Promise.try(function() {
 				if (modlist[0] == '' || modlist.length === 0) {
 					return "None yet.";
-					api.sendMessage(response, message.threadID);
 				} else {
 					return api.getUserInfoAsync(modlist)
 						.then((userarray) => Object.values(userarray).map(user => user.name).join(', ')); //return array of names
