@@ -15,22 +15,22 @@ const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
 const unlink = Promise.promisify(fs.unlink);
 
+const appstatejson = require('./appstate.json')
+let modlist //ew globals
 
-Promise.all([
-		readFile('./modlist', 'utf8'),
-		readFile('./appstate.json', 'utf8')
-	])
-	.then(([modlist, appstate]) => {
-		return [modlist.toString().split("\n"), JSON.parse(appstate)] //sync?
+
+Promise.try(function() {
+		return readFile('./modlist', 'utf8')
 	})
-	.then(([modlist, data]) => {
-		return [modlist, login({
-			appState: data
-		})]
+	.then((moddata) => {
+		modlist = moddata.toString().split("\n")
+		return login({
+			appState: appstatejson
+		})
 	})
-	.then(([modlist, api]) => {
-		console.log(api); //api is now a promise
+	.then((api) => {
 		Promise.promisifyAll(api);
+		
 		api.setOptions({
 			logLevel: "silent"
 		});

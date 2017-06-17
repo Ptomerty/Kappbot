@@ -49,6 +49,7 @@ function isCustomEmote(word) {
 
 function parse(api, message) {
 	Promise.promisifyAll(api);
+	
 	Promise.try(function() {
 		const split = message.body.split(" ");
 
@@ -79,7 +80,7 @@ function parse(api, message) {
 		} else if (message.body === '!modlist' && split.length === 1) {
 			let response = "Mods: ";
 			Promise.try(function() {
-				return api.getUserInfoAsync(modlist);
+				return api.getUserInfoAsync(modlist)
 			}).then((userarray) => {
 				response += Object.values(ret).map(user => user.name).join(', ');
 				api.sendMessage(response, message.threadID);
