@@ -31,9 +31,9 @@ var downloadImage = function(url, pathname) {
 var generateURL = function(name) {
 	var imageID;
 	var url;
-	if (globalEmotes.emotes[name]) {
+	if (globalEmotes.find(obj => obj.code === name)) {
 		// console.log('emote is global')
-		imageID = globalEmotes.emotes[name].image_id;
+		imageID = globalEmotes.find(obj => obj.code === name).id;
 		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
 	} else if (subEmotes.emotes.find(obj => obj.code === name)) {
 		// console.log('emote is subsonly')
