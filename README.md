@@ -23,5 +23,6 @@ Custom emote list can be enumerated with `!customlist` in chat.
 
 Huge thanks to zsoc, joepie91, charmander, and everyone else on #Node.js for helping me throughout the whole project!
 
-
-
+### Bugs
+-----
+Sending a message with >1 new emote to be downloaded results in neither being downloaded.
