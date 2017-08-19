@@ -4,8 +4,7 @@ const login = Promise.promisify(require('facebook-chat-api'));
 const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 
-const globalEmotes = require('./global.json');
-const subEmotes = require('./subs.json');
+const twitchEmotes = require('./twitch.json');
 const bttvEmotes = require('./bttv.json');
 const customEmotes = require('./custom.json');
 
@@ -31,12 +30,8 @@ function cleanMessage(msg) {
 		.toLowerCase();
 }
 
-function isGlobalEmote(word) {
-	return (globalEmotes.emotes[word] != null);
-}
-
-function isSubEmote(word) {
-	return (subEmotes.emotes.find(obj => obj.code === word) != null);
+function isTwitchEmote(word) {
+	return (twitchEmotes[word] != null);
 }
 
 function isBTTVEmote(word) {
@@ -48,10 +43,8 @@ function isCustomEmote(word) {
 }
 
 function parse(api, message) {
-
 	Promise.try(function() {
 		const split = message.body.split(" ");
-
 		if (message.body === '!id') {
 			api.sendMessage("Your ID is " + message.senderID, message.threadID);
 		} else if (message.body === '!modme' && modlist.length <= 1) {
@@ -172,7 +165,7 @@ function parse(api, message) {
 			let splitWords = cleanedMsg.split(" ");
 
 			return Promise.filter(splitWords, (word) => {
-				return (isGlobalEmote(word) || isSubEmote(word) || isBTTVEmote(word) || isCustomEmote(word));
+				return (isTwitchEmote(word) || isBTTVEmote(word) || isCustomEmote(word));
 			}).then((emoteWords) => {
 				return emoteWords.slice(0, 5); //only return 5 in order
 			}).map((emoteWord) => {

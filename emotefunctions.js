@@ -1,15 +1,15 @@
 'use strict';
 const Promise = require('bluebird');
 const fs = require('fs');
-const wget = require('wget-improved')
+const wget = require('wget-improved');
+const fetch = require('node-fetch');
 
-var readFile = Promise.promisify(fs.readFile);
-var writeFile = Promise.promisify(fs.writeFile);
-var open = Promise.promisify(fs.open);
-var close = Promise.promisify(fs.close);
+const readFile = Promise.promisify(fs.readFile);
+const writeFile = Promise.promisify(fs.writeFile);
+const open = Promise.promisify(fs.open);
+const close = Promise.promisify(fs.close);
 
-const globalEmotes = require('./global.json');
-const subEmotes = require('./subs.json');
+const twitchEmotes = require('./twitch.json');
 const bttvEmotes = require('./bttv.json');
 const customEmotes = require('./custom.json');
 
@@ -31,9 +31,9 @@ var downloadImage = function(url, pathname) {
 var generateURL = function(name) {
 	var imageID;
 	var url;
-	if (globalEmotes.find(obj => obj.code === name)) {
+	if (twitchEmotes[name] != null) {
 		// console.log('emote is global')
-		imageID = globalEmotes.find(obj => obj.code === name).id;
+		imageID = twitchEmotes[name];
 		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
 	} else if (subEmotes.emotes.find(obj => obj.code === name)) {
 		// console.log('emote is subsonly')
@@ -50,7 +50,6 @@ var generateURL = function(name) {
 
 var getEmoteImageStream = function(name) {
 	const pathname = __dirname + '/emotes/' + name + '.png';
-
 	return new Promise((resolve, reject) => {
 		const stream = fs.createReadStream(pathname);
 		//ENOENT thrown here!
@@ -78,5 +77,4 @@ var getEmoteImageStream = function(name) {
 }
 
 exports.downloadImage = downloadImage;
-exports.generateURL = generateURL;
 exports.getEmoteImageStream = getEmoteImageStream;

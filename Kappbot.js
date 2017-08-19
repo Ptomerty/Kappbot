@@ -6,8 +6,7 @@ const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 const cfc = require('./checkForCommands.js');
 
-const globalEmotes = require('./global.json');
-const subEmotes = require('./subs.json');
+const twitchEmotes = require('./twitch.json');
 const bttvEmotes = require('./bttv.json');
 const customEmotes = require('./custom.json');
 

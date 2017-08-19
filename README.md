@@ -5,7 +5,7 @@ Bot that sends Twitch Emotes to Facebook chats
 -----
 Requires facebook-chat-api, bluebird, wget-improved. (how to package.json?)
 
-Run `saveapp.js`, replacing emails and passwords as needed. Then, run Kappbot.js.
+Run `saveapp.js`, replacing emails and passwords as needed. Then, download latest images.json, run convert.js and make lowercase, then run Kappbot.js.
 
 ### Custom emotes
 -----
