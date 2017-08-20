@@ -1,7 +1,6 @@
 const Promise = require('bluebird');
 const fs = require('fs');
 const login = Promise.promisify(require('facebook-chat-api'));
-const fetch = require('node-fetch');
 const emotefxn = require('./emotefunctions.js');
 
 const twitchEmotes = require('./twitch.json');
