@@ -13,11 +13,19 @@ const customEmotes = require('./custom.json');
 //https://www.npmjs.com/package/promisepipe
 
 var downloadImage = function(url, pathname) {
-	return new Promise((resolve, reject) => {
-		Promise.try(function(){
-			return fetch(url)
-		}).then((res) => {
-			resolve(pipePromise(res.body, pathname));
+	Promise.try(function(){
+		return fetch(url)
+	}).then((res) => {
+		return new Promise((resolve, reject) => {
+			var dest = fs.createWriteStream(pathname);
+			var pipe = res.body.pipe(dest);
+			pipe.on('finish', () => {
+				console.log('pipe done')
+				resolve();
+			}).on('error', () => {
+				pipe.end();
+				reject();
+			})
 		})
 	})
 }
