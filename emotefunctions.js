@@ -25,6 +25,7 @@ var pipePromise = function(data, pathname) {
 		var dest = fs.createWriteStream(pathname);
 		var pipe = data.pipe(dest);
 		pipe.on('finish', () => {
+			console.log('pipe done')
 			resolve();
 		}).on('error', () => {
 			pipe.end();

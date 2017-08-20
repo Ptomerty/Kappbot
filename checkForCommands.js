@@ -168,6 +168,7 @@ function parse(api, message) {
 			}).then((emoteWords) => {
 				return emoteWords.slice(0, 5); //only return 5 in order
 			}).map((emoteWord) => {
+				console.log(emoteWord);
 				return emotefxn.getEmoteImageStream(emoteWord);
 			}).then((imageStreams) => {
 				api.sendMessage({
