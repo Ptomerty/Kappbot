@@ -13,9 +13,12 @@ Promise.try(function() {
 }).then((res) => {
 	return res.json();
 }).then((json) => {
+	const listOfCommonWords = ['know', 'them'];
 	var newjson = {}
 	for (const key of Object.keys(json)) {
-    	newjson[json[key].code.toLowerCase()] = key.toLowerCase();
+		if (!listOfCommonWords.includes(json[key].code.toLowerCase())) { //srsly who wants those as emotes
+	    	newjson[json[key].code.toLowerCase()] = key.toLowerCase();
+	    }
 	}
 	return writeFile('./twitch.json', JSON.stringify(newjson), 'utf8')
 }).then(() => {
