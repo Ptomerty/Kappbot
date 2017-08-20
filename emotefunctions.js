@@ -68,7 +68,9 @@ var getEmoteImageStream = function(name) {
 				if (error.code == 'ENOENT') {
 					const url = generateURL(name);
 					Promise.try(function(){
-						return downloadImage(url, pathname)
+						return fetch(url)
+					}).then((res) => {
+						return pipePromise(res.body, pathname);
 					}).then(() => {
 						const stream = fs.createReadStream(pathname);
 						console.log('readstream created!')
