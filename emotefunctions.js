@@ -40,14 +40,16 @@ var generateURL = function(name) {
 	return url;
 }
 
-var getEmoteImageStream = function(name) {
+var getEmoteImageStream = function(name, url) {
 	const pathname = __dirname + '/emotes/' + name + '.png';
 	return new Promise((resolve, reject) => {
 		const stream = fs.createReadStream(pathname);
 		//ENOENT thrown here!
 		stream.on('error', function(error) {
 				if (error.code == 'ENOENT') {
-					const url = generateURL(name);
+					if (url == null) {
+						url = generateURL(name);
+					}
 					Promise.try(function(){
 						return fetch(url)
 					}).then((res) => {
