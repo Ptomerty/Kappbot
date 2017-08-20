@@ -61,6 +61,7 @@ var getEmoteImageStream = function(name) {
 						return downloadImage(url, pathname)
 					}).then(() => {
 						const stream = fs.createReadStream(pathname);
+						console.log('readstream created!')
 						resolve(stream);
 					}).catch(err => {
 						console.error('error during downloading!', err);
