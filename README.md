@@ -6,7 +6,7 @@ Bot that sends Twitch Emotes to Facebook chats
 -----
 Requires `facebook-chat-api`, `bluebird`, `node-fetch`.
 
-Replace `FB_EMAIL` and `FB_PASSWORD` in `saveapp.js`, then run it to produce your `appstate.json`. Run `setup.js` once, then run `Kappbot.js` from then on.
+Replace `FB_EMAIL` and `FB_PASSWORD` in `saveapp.js`, then run it to produce your `appstate.json`. Run `setup.js` once, then run `Kappbot.js` from then on. Run `update.js` if you ever need to update Twitch/BTTV emotes.
 
 ### Custom emotes
 -----
