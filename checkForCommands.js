@@ -1,7 +1,6 @@
 const Promise = require('bluebird');
 const fs = require('fs');
 const login = Promise.promisify(require('facebook-chat-api'));
-const wget = require('wget-improved');
 const emotefxn = require('./emotefunctions.js');
 
 const twitchEmotes = require('./twitch.json');
@@ -95,10 +94,10 @@ function parse(api, message) {
 			if (split[0] === '!addemote' && split.length === 4) {
 				Promise.try(function() {
 					const emotename = split[1].toLowerCase();
-					const url = "http://" + split[2] + "/" + split[3];
-					customEmotes.emotes[emotename] = '';
 					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
-					return emotefxn.downloadImage(url, emotefilename)
+					const url = "http://" + split[2] + "/" + split[3];
+					customEmotes[emotename] = '';
+					return emotefxn.downloadImage(emotename, emotefilename);
 				}).then(() => {
 					api.sendMessage("Emote added!", message.threadID);
 					return writeFile('./custom.json', JSON.stringify(customEmotes))
@@ -106,7 +105,7 @@ function parse(api, message) {
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
 					const emotename = split[1].toLowerCase();;
-					delete customEmotes.emotes[emotename];
+					delete customEmotes[emotename];
 					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					return unlink(emotefilename)
 				}).then(() => {
@@ -165,7 +164,7 @@ function parse(api, message) {
 			let splitWords = cleanedMsg.split(" ");
 
 			return Promise.filter(splitWords, (word) => {
-				return (isTwitchEmote(word) || isBTTVEmote(word) || isCustomEmote(word));
+				return (isBTTVEmote(word) || isCustomEmote(word) || isTwitchEmote(word) );
 			}).then((emoteWords) => {
 				return emoteWords.slice(0, 5); //only return 5 in order
 			}).map((emoteWord) => {
