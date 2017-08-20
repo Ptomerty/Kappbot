@@ -34,11 +34,11 @@ function isTwitchEmote(word) {
 }
 
 function isBTTVEmote(word) {
-	return (bttvEmotes.emotes.find(obj => obj.code === word) != null);
+	return (bttvEmotes[word] != null);
 }
 
 function isCustomEmote(word) {
-	return (customEmotes.emotes[word] != null);
+	return (customEmotes[word] != null);
 }
 
 function parse(api, message) {
@@ -68,7 +68,7 @@ function parse(api, message) {
 			const response = "Mod Commands: " + modcommands.join(', ');
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!customlist') {
-			const response = "Custom emote list: " + Object.keys(customEmotes.emotes).join(', ');
+			const response = "Custom emote list: " + Object.keys(customEmotes).join(', ');
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!ping') {
 			api.sendMessage("pong", message.threadID);
