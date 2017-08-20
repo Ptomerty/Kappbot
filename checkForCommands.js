@@ -15,9 +15,6 @@ const modcommands = ['!addemote', '!delemote', '!mod', '!demod', '!echothread'];
 const commands = ['!id', '!ping', '!customlist', '!threadID', '!modlist', '!modcommands', '!modme', '!echo'];
 var modlist = []; //mod IDs go here.
 
-exports.parse = parse;
-exports.setModlist = setModlist;
-
 function setModlist(list) {
 	modlist = list;
 }
@@ -90,21 +87,22 @@ function parse(api, message) {
 				api.sendMessage(response, message.threadID);
 			})
 		} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
-			//note that addemote and delemote are broken until readfile support
 			if (split[0] === '!addemote' && split.length === 4) {
+				const emotename = split[1].toLowerCase();
 				Promise.try(function() {
-					const emotename = split[1].toLowerCase();
-					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					const url = "http://" + split[2] + "/" + split[3];
 					customEmotes[emotename] = '';
-					return emotefxn.downloadImage(emotename, emotefilename);
+					return fetch(url)
+				}).then((res) => {
+					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
+					return emotefxn.pipePromise(res.body, emotefilename);
 				}).then(() => {
 					api.sendMessage("Emote added!", message.threadID);
 					return writeFile('./custom.json', JSON.stringify(customEmotes))
 				});
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
-					const emotename = split[1].toLowerCase();;
+					const emotename = split[1].toLowerCase();
 					delete customEmotes[emotename];
 					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					return unlink(emotefilename)
@@ -159,16 +157,14 @@ function parse(api, message) {
 				api.sendMessage(response, split[1]);
 			}
 		} else {
-			//eventually move to another function?
 			let cleanedMsg = cleanMessage(message.body);
 			let splitWords = cleanedMsg.split(" ");
 
 			return Promise.filter(splitWords, (word) => {
-				return (isBTTVEmote(word) || isCustomEmote(word) || isTwitchEmote(word) );
+				return (isBTTVEmote(word) || isCustomEmote(word) || isTwitchEmote(word));
 			}).then((emoteWords) => {
 				return emoteWords.slice(0, 5); //only return 5 in order
 			}).map((emoteWord) => {
-				console.log(emoteWord);
 				return emotefxn.getEmoteImageStream(emoteWord);
 			}).then((imageStreams) => {
 				api.sendMessage({
@@ -182,5 +178,7 @@ function parse(api, message) {
 		api.sendMessage("Misc error during parsing, check console.", message.threadID);
 		console.error("Error during parsing!", err)
 	})
-
 }
+
+exports.parse = parse;
+exports.setModlist = setModlist;

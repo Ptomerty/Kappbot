@@ -10,11 +10,8 @@ const bttvEmotes = require('./bttv.json');
 const customEmotes = require('./custom.json');
 
 const readFile = Promise.promisify(fs.readFile);
-const writeFile = Promise.promisify(fs.writeFile);
-const unlink = Promise.promisify(fs.unlink);
 
 const appstatejson = require('./appstate.json')
-
 
 Promise.try(function() {
 	return readFile('./modlist', 'utf8')
@@ -33,11 +30,10 @@ Promise.try(function() {
 
 	api.listen((err, message) => {
 		if (err) return console.warn(err);
-
 		if (typeof message.body === 'string' && message.body !== undefined) {
 			cfc.parse(api, message);
 		}
-	}); //api.listen
+	});
 }).catch((err) => {
 	console.error("Error during login/connection to API!", err);
 }); //login

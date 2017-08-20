@@ -5,7 +5,6 @@ const fetch = require('node-fetch');
 
 const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
-const stat = Promise.promisify(fs.stat);
 
 //DRY!
 

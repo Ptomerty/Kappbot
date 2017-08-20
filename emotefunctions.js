@@ -12,30 +12,11 @@ const customEmotes = require('./custom.json');
 
 //https://www.npmjs.com/package/promisepipe
 
-var downloadImage = function(url, pathname) {
-	Promise.try(function(){
-		return fetch(url)
-	}).then((res) => {
-		return new Promise((resolve, reject) => {
-			var dest = fs.createWriteStream(pathname);
-			var pipe = res.body.pipe(dest);
-			pipe.on('finish', () => {
-				console.log('pipe done')
-				resolve();
-			}).on('error', () => {
-				pipe.end();
-				reject();
-			})
-		})
-	})
-}
-
 var pipePromise = function(data, pathname) {
 	return new Promise((resolve, reject) => {
 		var dest = fs.createWriteStream(pathname);
 		var pipe = data.pipe(dest);
 		pipe.on('finish', () => {
-			console.log('pipe done')
 			resolve();
 		}).on('error', () => {
 			pipe.end();
@@ -73,7 +54,6 @@ var getEmoteImageStream = function(name) {
 						return pipePromise(res.body, pathname);
 					}).then(() => {
 						const stream = fs.createReadStream(pathname);
-						console.log('readstream created!')
 						resolve(stream);
 					}).catch(err => {
 						console.error('error during downloading!', err);
@@ -89,4 +69,4 @@ var getEmoteImageStream = function(name) {
 	});
 }
 exports.getEmoteImageStream = getEmoteImageStream;
-exports.downloadImage = downloadImage;
+exports.pipePromise = pipePromise;
