@@ -42,7 +42,6 @@ var generateURL = function(name) {
 
 var getEmoteImageStream = function(name, url) {
 	const pathname = __dirname + '/emotes/' + name + '.png';
-	console.log(url);
 	return new Promise((resolve, reject) => {
 		const stream = fs.createReadStream(pathname);
 		//ENOENT thrown here!
@@ -52,7 +51,6 @@ var getEmoteImageStream = function(name, url) {
 						url = generateURL(name);
 					}
 					Promise.try(function(){
-						console.log('fetching...')
 						return fetch(url)
 					}).then((res) => {
 						return pipePromise(res.body, pathname);

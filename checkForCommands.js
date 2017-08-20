@@ -93,7 +93,6 @@ function parse(api, message) {
 				Promise.try(function() {
 					const url = "http://" + split[2] + "/" + split[3];
 					customEmotes[emotename] = '';
-					console.log(emotename + " " + url)
 					return emotefxn.getEmoteImageStream(emotename, url);
 				}).then(() => {
 					api.sendMessage("Emote added!", message.threadID);
