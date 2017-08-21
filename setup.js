@@ -13,7 +13,7 @@ Promise.try(function() {
 }).then((res) => {
 	return res.json();
 }).then((json) => {
-	const listOfCommonWords = ['know', 'them'];
+	const listOfCommonWords = ['know', 'them', 'brians'];
 	var newjson = {}
 	for (const key of Object.keys(json)) {
 		if (!listOfCommonWords.includes(json[key].code.toLowerCase())) { //srsly who wants those as emotes
@@ -31,8 +31,4 @@ Promise.try(function() {
     	newjson[json.emotes[key].regex.toLowerCase()] = json.emotes[key].url.toLowerCase().slice(-27, -3);
 	}
 	return writeFile('./bttv.json', JSON.stringify(newjson), 'utf8')
-}).then(() => {
-	var newjson = {}
-	newjson['sampleemote'] = "";
-	return writeFile('./custom.json', JSON.stringify(newjson), 'utf8')
 })
