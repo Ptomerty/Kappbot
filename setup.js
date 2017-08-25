@@ -13,7 +13,7 @@ Promise.try(function() {
 }).then((res) => {
 	return res.json();
 }).then((json) => {
-	const listOfCommonWords = ['know', 'them', 'brians', 'plat'];
+	const listOfCommonWords = ['know', 'them', 'brians', 'plat', 'best', 'nintendude'];
 	var newjson = {}
 	for (const key of Object.keys(json)) {
 		if (!listOfCommonWords.includes(json[key].code.toLowerCase())) { //srsly who wants those as emotes
