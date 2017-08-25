@@ -87,16 +87,23 @@ function parse(api, message) {
 				api.sendMessage(response, message.threadID);
 			})
 		} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
-			if (split[0] === '!addemote' && split.length === 4) {
+			if (split[0] === '!addemote') {
 				const emotename = split[1].toLowerCase();
-				Promise.try(function() {
-					const url = "http://" + split[2] + "/" + split[3];
-					customEmotes[emotename] = '';
-					return emotefxn.getEmoteImageStream(emotename, url);
-				}).then(() => {
-					api.sendMessage("Emote added!", message.threadID);
-					return writeFile('./custom.json', JSON.stringify(customEmotes))
-				});
+				customEmotes[emotename] = '';
+				if (split.length === 4) {
+					Promise.try(function() {
+						const url = "http://" + split[2] + "/" + split[3];
+						return emotefxn.getEmoteImageStream(emotename, url);
+					}).then(() => {
+						api.sendMessage("Emote added!", message.threadID);
+						return writeFile('./custom.json', JSON.stringify(customEmotes))
+					});
+				} else if (split.length === 2) {
+					Promise.try(function() {
+						api.sendMessage("Emote added!", message.threadID);
+						return writeFile('./custom.json', JSON.stringify(customEmotes))
+					})
+				}
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
 					const emotename = split[1].toLowerCase();
