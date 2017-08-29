@@ -14,7 +14,7 @@ Promise.try(function() {
 	return res.json();
 }).then((json) => {
 	console.log("Fetched Twitch JSON!")
-	const listOfCommonWords = ['know', 'them', 'brians', 'plat', 'best', 'nintendude', 'miracle', 'dash', 'soap', 'hero'];
+	const listOfCommonWords = ['know', 'them', 'brians', 'plat', 'best', 'nintendude', 'miracle', 'dash', 'soap', 'hero', 'dual'];
 	var newjson = {}
 	for (const key of Object.keys(json)) {
 		if (!listOfCommonWords.includes(json[key].code.toLowerCase())) { //srsly who wants those as emotes
