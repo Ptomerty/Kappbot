@@ -33,18 +33,18 @@ Promise.try(function() {
 	var dict = words;
 	console.log(typeof dict)
 	dict.forEach(function(element) {
-		if (thing[1][0][element] != null) {
+		if (a[element] != null) {
 			console.log(element);
-			console.log(thing[1][0][element])
-			delete thing[1][0][element];
+			console.log(a[element])
+			delete a[element];
 		}
-		if (thing[1][1][element] != null) {
+		if (b[element] != null) {
 			console.log(element);
-			console.log(thing[1][1][element])
-			delete thing[1][1][element];
+			console.log(b[element])
+			delete b[element];
 		}
 	})
-	return thing[1];
+	return [a,b];
 }).then((jsons) => {
 	writeFile('./bttv.json', JSON.stringify(jsons[0]), 'utf8')
 	writeFile('./twitch.json', JSON.stringify(jsons[1]), 'utf8')
