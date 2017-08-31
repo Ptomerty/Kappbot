@@ -15,6 +15,7 @@ Promise.try(function() {
 }).map((urldata) => {
 	return urldata.json();
 }).then((jsons) => {
+	console.log("JSONS fetched!")
 	var bttvjson = {}
 	for (const key of Object.keys(jsons[0].emotes)) {
     	bttvjson[jsons[0].emotes[key].regex.toLowerCase()] = jsons[0].emotes[key].url.toLowerCase().slice(-27, -3);
@@ -27,26 +28,34 @@ Promise.try(function() {
 }).then(([a, b]) => {
 	return Promise.all([readFile("/usr/share/dict/words", "utf8"), readFile("./wordlist", "utf8"), [a, b]]); //return promise with jsons packaged
 }).then(([words, list, [a,b]]) => {
-	return [words.toString().toLowerCase().split("\n"), list.toString().toLowerCase().split("\n"), [a,b]]; //
-}).then(([words, list, [a,b]]) => {
-	var dict = words;
+	console.log("Dictionary and wordlist fetched!")
+	var dict = words.toString().toLowerCase().split("\n");
+	var wordlist = list.toString().toLowerCase().split("\n");
 	console.log(typeof dict)
 	dict.forEach(function(element) {
 		if (a[element] != null) {
-			console.log(element);
-			console.log(a[element])
+			console.log("deleting " + element + " at " + a[element] + " in bttv");
 			delete a[element];
 		}
 		if (b[element] != null) {
-			console.log(element);
-			console.log(b[element])
+			console.log("deleting " + element + " at " + b[element] + " in twitch");
+			delete b[element];
+		}
+	})
+	wordlist.forEach(function(element) {
+		if (a[element] != null) {
+			console.log("deleting " + element + " at " + a[element] + " in bttv");
+			delete a[element];
+		}
+		if (b[element] != null) {
+			console.log("deleting " + element + " at " + b[element] + " in twitch");
 			delete b[element];
 		}
 	})
 	return [a,b];
 }).then((jsons) => {
-	writeFile('./bttv.json', JSON.stringify(jsons[0]), 'utf8')
-	writeFile('./twitch.json', JSON.stringify(jsons[1]), 'utf8')
-	console.log(jsons[1]['soap']);
-	console.log(jsons[1]['hero']);
+	console.log("elements deleted!")
+	return Promise.all(writeFile('./bttv.json', JSON.stringify(jsons[0]), 'utf8'),	writeFile('./twitch.json', JSON.stringify(jsons[1]), 'utf8'));
+}).then(() => {
+	return console.log("Done!")
 })
