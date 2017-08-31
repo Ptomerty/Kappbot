@@ -31,30 +31,26 @@ Promise.try(function() {
 	console.log("Dictionary and wordlist fetched!")
 	var dict = words.toString().toLowerCase().split("\n");
 	var wordlist = list.toString().toLowerCase().split("\n");
-	console.log(typeof dict)
-	dict.forEach(function(element) {
-		if (a[element] != null) {
-			console.log("deleting " + element + " at " + a[element] + " in bttv");
-			delete a[element];
+
+	function checkForWords(element) {
+		if (element != "constructor") {
+			if (a[element] != null) {
+				console.log("deleting " + element + " at " + a[element] + " in bttv");
+				delete a[element];
+			}
+			if (b[element] != null) {
+				console.log("deleting " + element + " at " + b[element] + " in twitch");
+				delete b[element];
+			}
 		}
-		if (b[element] != null) {
-			console.log("deleting " + element + " at " + b[element] + " in twitch");
-			delete b[element];
-		}
-	})
-	wordlist.forEach(function(element) {
-		if (a[element] != null) {
-			console.log("deleting " + element + " at " + a[element] + " in bttv");
-			delete a[element];
-		}
-		if (b[element] != null) {
-			console.log("deleting " + element + " at " + b[element] + " in twitch");
-			delete b[element];
-		}
-	})
+	}
+
+	dict.forEach(checkForWords)
+	wordlist.forEach(checkForWords)
+
 	return [a,b];
 }).then((jsons) => {
-	console.log("elements deleted!")
+	console.log("Elements deleted!")
 	return Promise.all([writeFile('./bttv.json', JSON.stringify(jsons[0]), 'utf8'),	writeFile('./twitch.json', JSON.stringify(jsons[1]), 'utf8')]);
 }).then(() => {
 	return console.log("Done!")
