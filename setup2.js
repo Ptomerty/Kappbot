@@ -26,11 +26,11 @@ Promise.try(function() {
 	return [bttvjson, twitchjson];
 }).then(([a, b]) => {
 	return [readFile("/usr/share/dict/words", "utf8"), readFile("./wordlist", "utf8"), [a, b]];
-}).then((array) => {
-	return array;
-}).then((thing) => {
-	var dict = thing[0].toString().toLowerCase().split("\n")
-	var words = [];
+}).then(([words, list, [a,b]]) => {
+	return [words.toString().toLowerCase().split("\n"),
+	list.toString().toLowerCase().split("\n"), [a,b]];
+}).then(([words, list, [a,b]]) => {
+	var dict = words;
 	console.log(typeof dict)
 	dict.forEach(function(element) {
 		if (thing[1][0][element] != null) {
