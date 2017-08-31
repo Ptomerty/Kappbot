@@ -8,18 +8,15 @@ const writeFile = Promise.promisify(fs.writeFile);
 
 //DRY!
 
-Promise.try(function() {
+Promise.try(function(){
 	return fetch('https://twitchemotes.com/api_cache/v3/images.json')
 }).then((res) => {
 	return res.json();
 }).then((json) => {
 	console.log("Fetched Twitch JSON!")
-	const listOfCommonWords = ['know', 'them', 'brians', 'plat', 'best', 'nintendude', 'miracle', 'dash', 'soap', 'hero', 'dual', 'yoshi','wipe'];
 	var newjson = {}
 	for (const key of Object.keys(json)) {
-		if (!listOfCommonWords.includes(json[key].code.toLowerCase())) { //srsly who wants those as emotes
 	    	newjson[json[key].code.toLowerCase()] = key.toLowerCase();
-	    }
 	}
 	return writeFile('./twitch.json', JSON.stringify(newjson), 'utf8')
 }).then(() => {
@@ -35,5 +32,9 @@ Promise.try(function() {
 	}
 	return writeFile('./bttv.json', JSON.stringify(newjson), 'utf8')
 }).then(() => {
-	return console.log("Wrote Twitch JSON!") // error handling requires return all the way through
+	let locations = ["/usr/share/dict/words", "./wordlist"];
+	readFile("/usr/share/dict/words", "utf8");
+}).then((data) => {
+	listOfCommonWords = data.toString().split("\n")
+	return console.log("Wrote BTTV JSON!") // error handling requires return all the way through
 })
