@@ -25,7 +25,7 @@ function getA() {
             for (const key of Object.keys(jsons[1])) {
                 twitchjson[jsons[1][key].code.toLowerCase()] = key.toLowerCase();
             }
-            resolve([bttvjson, twitchjson]);
+            return [bttvjson, twitchjson];
         })
     })
 
