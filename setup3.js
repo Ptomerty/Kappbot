@@ -41,7 +41,7 @@ function getB() {
 }
 
 
-Promise.all(getA(), getB()).then(([arrayA, arrayB]) => {
+Promise.all(getA(), getB()).then((data) => {
 	console.log("theoretically done");
-	console.log(arrayA);
+	console.log(typeof data);
 })
