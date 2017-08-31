@@ -25,10 +25,9 @@ Promise.try(function() {
 	}
 	return [bttvjson, twitchjson];
 }).then(([a, b]) => {
-	return [readFile("/usr/share/dict/words", "utf8"), readFile("./wordlist", "utf8"), [a, b]];
+	return [readFile("/usr/share/dict/words", "utf8"), readFile("./wordlist", "utf8"), [a, b]]; //return promise with jsons packaged
 }).then(([words, list, [a,b]]) => {
-	return [words.toString().toLowerCase().split("\n"),
-	list.toString().toLowerCase().split("\n"), [a,b]];
+	return [words.toString().toLowerCase().split("\n"), list.toString().toLowerCase().split("\n"), [a,b]]; //
 }).then(([words, list, [a,b]]) => {
 	var dict = words;
 	console.log(typeof dict)
