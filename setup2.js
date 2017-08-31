@@ -31,9 +31,13 @@ Promise.try(function() {
 	var words = [];
 	dict.forEach(function(element) {
 		if (thing[1][0][element] != null) {
+			console.log(element);
+			console.log(thing[1][0][element])
 			delete thing[1][0][element];
 		}
 		if (thing[1][1][element] != null) {
+			console.log(element);
+			console.log(thing[1][1][element])
 			delete thing[1][1][element];
 		}
 	})
