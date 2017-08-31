@@ -9,6 +9,7 @@ const writeFile = Promise.promisify(fs.writeFile);
 //DRY!
 
 Promise.try(function() {
+	console.log("Beginning emote list update...")
 	return ['https://api.betterttv.net/emotes','https://twitchemotes.com/api_cache/v3/images.json']
 }).map((url) => {
 	return fetch(url)
@@ -50,8 +51,8 @@ Promise.try(function() {
 
 	return [a,b];
 }).then((jsons) => {
-	console.log("Elements deleted!")
+	console.log("Words deleted!")
 	return Promise.all([writeFile('./bttv.json', JSON.stringify(jsons[0]), 'utf8'),	writeFile('./twitch.json', JSON.stringify(jsons[1]), 'utf8')]);
 }).then(() => {
-	return console.log("Done!")
+	return console.log("Emotes succesfully updated!")
 })
