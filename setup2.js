@@ -41,4 +41,6 @@ Promise.try(function() {
 }).then((jsons) => {
 	writeFile('./bttv.json', JSON.stringify(jsons[0]), 'utf8')
 	writeFile('./twitch.json', JSON.stringify(jsons[1]), 'utf8')
+	console.log(jsons[1]['soap']);
+	console.log(jsons[1]['hero']);
 })
