@@ -34,7 +34,7 @@ Promise.try(function() {
 	var wordlist = list.toString().toLowerCase().split("\n");
 
 	function checkForWords(element) {
-		if (element != "constructor") {
+		if (element != "constructor" && element != "kappa") {
 			if (a[element] != null) {
 				console.log("deleting " + element + " at " + a[element] + " in bttv");
 				delete a[element];
