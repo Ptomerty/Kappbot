@@ -2,6 +2,7 @@
 const Promise = require('bluebird');
 const fs = require('fs');
 const fetch = require('node-fetch');
+const sharp = require('sharp');
 
 const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
@@ -14,9 +15,16 @@ const customEmotes = require('./custom.json');
 
 var pipePromise = function(data, pathname) {
 	return new Promise((resolve, reject) => {
+		//create new transformer so stream doesn't remain closed
+		const transformer = sharp()
+		  .resize(75, 75)
+		  .withoutEnlargement()
+		  .on('error', function(err) {
+		    console.log(err);
+		  });
 		var dest = fs.createWriteStream(pathname);
-		var pipe = data.pipe(dest);
-		pipe.on('finish', () => {
+		var pipe = data.pipe(transformer).pipe(dest);
+		pipe.on('close', () => {
 			resolve();
 		}).on('error', () => {
 			pipe.end();
