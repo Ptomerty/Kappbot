@@ -21,11 +21,13 @@ const transformer = sharp()
 
 var pipePromise = function(data, pathname) {
 	return new Promise((resolve, reject) => {
+		console.log("entered sharp!");
 		//var dest = fs.createWriteStream(pathname);
 		sharp(data)
 			.resize(200,200)
 			.toFile(pathname)
 		.then(() => {
+			console.log("sharp completed)")
 			resolve();
 		})
 		.catch((err) => {
