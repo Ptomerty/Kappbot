@@ -11,29 +11,18 @@ const twitchEmotes = require('./twitch.json');
 const bttvEmotes = require('./bttv.json');
 const customEmotes = require('./custom.json');
 
-const transformer = sharp()
-  .resize(200, 200)
-  .on('error', function(err) {
-    console.log(err);
-  });
-
 //https://www.npmjs.com/package/promisepipe
 
 var pipePromise = function(data, pathname) {
 	return new Promise((resolve, reject) => {
+		//create new transformer so stream doesn't remain closed
+		const transformer = sharp()
+		  .resize(75, 75)
+		  .on('error', function(err) {
+		    console.log(err);
+		  });
 		console.log("entered sharp!");
 		var dest = fs.createWriteStream(pathname);
-		// sharp(data)
-		// 	.resize(200,200)
-		// 	.toFile(pathname)
-		// .then(() => {
-		// 	console.log("sharp completed)")
-		// 	resolve();
-		// })
-		// .catch((err) => {
-		// 	console.error(err);
-		// 	reject(err);
-		// })
 		var pipe = data.pipe(transformer).pipe(dest);
 		pipe.on('close', () => {
 			resolve();
