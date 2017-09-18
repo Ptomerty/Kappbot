@@ -22,25 +22,25 @@ const transformer = sharp()
 var pipePromise = function(data, pathname) {
 	return new Promise((resolve, reject) => {
 		console.log("entered sharp!");
-		//var dest = fs.createWriteStream(pathname);
-		sharp(data)
-			.resize(200,200)
-			.toFile(pathname)
-		.then(() => {
-			console.log("sharp completed)")
-			resolve();
-		})
-		.catch((err) => {
-			console.error(err);
-			reject(err);
-		})
-		// var pipe = data.pipe(transformer).pipe(dest);
-		// pipe.on('close', () => {
+		var dest = fs.createWriteStream(pathname);
+		// sharp(data)
+		// 	.resize(200,200)
+		// 	.toFile(pathname)
+		// .then(() => {
+		// 	console.log("sharp completed)")
 		// 	resolve();
-		// }).on('error', () => {
-		// 	pipe.end();
-		// 	reject();
 		// })
+		// .catch((err) => {
+		// 	console.error(err);
+		// 	reject(err);
+		// })
+		var pipe = data.pipe(transformer).pipe(dest);
+		pipe.on('close', () => {
+			resolve();
+		}).on('error', () => {
+			pipe.end();
+			reject();
+		})
 	})
 }
 
@@ -69,12 +69,9 @@ var getEmoteImageStream = function(name, url) {
 					if (url == null) {
 						url = generateURL(name);
 					}
-					console.log("url:" + url)
-					console.log("name: " + name)
 					Promise.try(function(){
 						return fetch(url)
 					}).then((res) => {
-						console.log("about to pipepromise")
 						return pipePromise(res.body, pathname);
 					}).then(() => {
 						const stream = fs.createReadStream(pathname);
