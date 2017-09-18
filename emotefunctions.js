@@ -18,6 +18,7 @@ var pipePromise = function(data, pathname) {
 		//create new transformer so stream doesn't remain closed
 		const transformer = sharp()
 		  .resize(75, 75)
+		  .withoutEnlargement()
 		  .on('error', function(err) {
 		    console.log(err);
 		  });
