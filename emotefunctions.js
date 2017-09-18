@@ -21,14 +21,24 @@ const transformer = sharp()
 
 var pipePromise = function(data, pathname) {
 	return new Promise((resolve, reject) => {
-		var dest = fs.createWriteStream(pathname);
-		var pipe = data.pipe(transformer).pipe(dest);
-		pipe.on('close', () => {
+		//var dest = fs.createWriteStream(pathname);
+		sharp(data)
+			.resize(200,200)
+			.toFile(pathname)
+		.then(() => {
 			resolve();
-		}).on('error', () => {
-			pipe.end();
-			reject();
 		})
+		.catch((err) => {
+			console.error(err);
+			reject(err);
+		})
+		// var pipe = data.pipe(transformer).pipe(dest);
+		// pipe.on('close', () => {
+		// 	resolve();
+		// }).on('error', () => {
+		// 	pipe.end();
+		// 	reject();
+		// })
 	})
 }
 
