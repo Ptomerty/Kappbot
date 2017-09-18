@@ -22,7 +22,6 @@ var pipePromise = function(data, pathname) {
 		  .on('error', function(err) {
 		    console.log(err);
 		  });
-		console.log("entered sharp!");
 		var dest = fs.createWriteStream(pathname);
 		var pipe = data.pipe(transformer).pipe(dest);
 		pipe.on('close', () => {
