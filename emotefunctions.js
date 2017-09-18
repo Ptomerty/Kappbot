@@ -2,6 +2,7 @@
 const Promise = require('bluebird');
 const fs = require('fs');
 const fetch = require('node-fetch');
+const sharp = require('sharp');
 
 const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
@@ -10,13 +11,19 @@ const twitchEmotes = require('./twitch.json');
 const bttvEmotes = require('./bttv.json');
 const customEmotes = require('./custom.json');
 
+const transformer = sharp()
+  .resize(200, 200)
+  .on('error', function(err) {
+    console.log(err);
+  });
+
 //https://www.npmjs.com/package/promisepipe
 
 var pipePromise = function(data, pathname) {
 	return new Promise((resolve, reject) => {
 		var dest = fs.createWriteStream(pathname);
-		var pipe = data.pipe(dest);
-		pipe.on('finish', () => {
+		var pipe = data.pipe(transformer).pipe(dest);
+		pipe.on('close', () => {
 			resolve();
 		}).on('error', () => {
 			pipe.end();
