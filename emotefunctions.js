@@ -69,9 +69,12 @@ var getEmoteImageStream = function(name, url) {
 					if (url == null) {
 						url = generateURL(name);
 					}
+					console.log("url:" + url)
+					console.log("name: " + name)
 					Promise.try(function(){
 						return fetch(url)
 					}).then((res) => {
+						console.log("about to pipepromise")
 						return pipePromise(res.body, pathname);
 					}).then(() => {
 						const stream = fs.createReadStream(pathname);
