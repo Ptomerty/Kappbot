@@ -19,19 +19,19 @@ Promise.try(function() {
 	console.log("JSONS fetched!")
 	var bttvjson = {}
 	for (const key of Object.keys(jsons[0].emotes)) {
-    	bttvjson[jsons[0].emotes[key].regex.toLowerCase()] = jsons[0].emotes[key].url.toLowerCase().slice(-27, -3);
+    	bttvjson[jsons[0].emotes[key].regex/* .toLowerCase() */] = jsons[0].emotes[key].url/* .toLowerCase() */.slice(-27, -3);
 	}
 	var twitchjson = {}
 	for (const key of Object.keys(jsons[1])) {
-    	twitchjson[jsons[1][key].code.toLowerCase()] = key.toLowerCase();
+    	twitchjson[jsons[1][key].code/* .toLowerCase() */] = key/* .toLowerCase() */;
 	}
 	return [bttvjson, twitchjson];
 }).then(([a, b]) => {
 	return Promise.all([readFile("/usr/share/dict/words", "utf8"), readFile("./wordlist", "utf8"), [a, b]]); //return promise with jsons packaged
 }).then(([words, list, [a,b]]) => {
 	console.log("Dictionary and wordlist fetched!")
-	var dict = words.toString().toLowerCase().split("\n");
-	var wordlist = list.toString().toLowerCase().split("\n");
+	var dict = words.toString()/* .toLowerCase() */.split("\n");
+	var wordlist = list.toString()/* .toLowerCase() */.split("\n");
 
 	function checkForWords(element) {
 		if (element != "constructor" && element != "kappa") {
