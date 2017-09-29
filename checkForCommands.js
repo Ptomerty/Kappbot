@@ -88,7 +88,7 @@ function parse(api, message) {
 			})
 		} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
 			if (split[0] === '!addemote') {
-				const emotename = split[1]//.toLowerCase();
+				const emotename = split[1];
 				customEmotes[emotename] = '';
 				if (split.length === 4) {
 					Promise.try(function() {
@@ -106,7 +106,7 @@ function parse(api, message) {
 				}
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
-					const emotename = split[1]//.toLowerCase();
+					const emotename = split[1];
 					delete customEmotes[emotename];
 					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 					return unlink(emotefilename)
