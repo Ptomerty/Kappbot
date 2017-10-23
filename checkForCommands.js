@@ -38,7 +38,7 @@ function isCustomEmote(word) {
 	return (customEmotes[word] != null);
 }
 
-function parse(api, message) {
+function parse(api, message, prevMessage) {
 	Promise.try(function() {
 		const split = message.body.split(" ");
 		if (message.body === '!id') {
@@ -74,10 +74,23 @@ function parse(api, message) {
 		} else if (split[0] === '!echo' && split.length > 1) {
 			const response = split.slice(1).join(" ");
 			api.sendMessage(response, message.threadID);
+		} else if (message.body.charAt(0) === 's' && message.body.charAt(1) === '/') {
+			let response;
+			let slashsplit = message.body.split("/");
+			if (slashsplit.length === 3) {
+				if (prevMessage !== null) {
+					response = prevMessage.body.replace(slashsplit[1], slashsplit[2]);
+				} else {
+					response = "Previous message was null!"
+				}
+			} else {
+				response = "Incorrect number of parameters."
+			}
+			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!modlist' && split.length === 1) {
 			Promise.try(function() {
 				if (modlist[0] == '' || modlist.length === 0) {
-					return "None yet.";
+					return "No mods yet.";
 				} else {
 					return api.getUserInfoAsync(modlist)
 						.then((userarray) => Object.values(userarray).map(user => user.name).join(', ')); //return array of names
