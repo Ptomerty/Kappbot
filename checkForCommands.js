@@ -81,9 +81,9 @@ function parse(api, message) {
 			if (slashsplit.length === 3) {
 				api.getThreadHistory(message.threadID, 1, message.timestamp, function(err, data) {
 			        if (err) throw err;			        
-			        let prevMessage = data[0].body;
-			        if (prevMessage.includes(slashsplit[1]) && prevMessage.senderID == message.senderID) {
-			        	response = "Correction: " + prevMessage.replace(slashsplit[1], "*" + slashsplit[2] + "*");
+			        let prevMessage = data[0];
+			        if (prevMessage.body.includes(slashsplit[1]) && prevMessage.senderID == message.senderID) {
+			        	response = "Correction: " + prevMessage.body.replace(slashsplit[1], "*" + slashsplit[2] + "*");
 			        	api.sendMessage(response, message.threadID);
 			        }
 				});
