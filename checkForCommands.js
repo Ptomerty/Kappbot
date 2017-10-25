@@ -38,6 +38,10 @@ function isCustomEmote(word) {
 	return (customEmotes[word] != null);
 }
 
+function returnLastResponse(api, message) {
+	
+}
+
 function parse(api, message) {
 	Promise.try(function() {
 		const split = message.body.split(" ");
@@ -78,20 +82,18 @@ function parse(api, message) {
 			let response;
 			let slashsplit = message.body.split("/");
 			if (slashsplit.length === 3) {
-				var prevMessage = Promise.try(function() {
-					return api.getThreadHistoryAsync(message.threadID, 1, message.timestamp)
-				}).then((array) => {
-					return array[0];
+				api.getThreadHistory(message.threadID, 1, message.timestamp, function(err, data) {
+			        if (err) throw err;			        
+			        let prevMessage = data[0].body;
+			        if (prevMessage.includes(slashsplit[1])) {
+			        	response = "Correction: " + prevMessage.replace(slashsplit[1], "*" + slashsplit[2] + "*");
+			        	api.sendMessage(response, message.threadID);
+			        }
 				});
-				if (prevMessage !== null) {
-					response = prevMessage.body.replace(slashsplit[1], slashsplit[2]);
-				} else {
-					response = "Previous message was null!"
-				}
 			} else {
-				response = "Incorrect number of parameters."
+				response = "Incorrect number of parameters.";
+				api.sendMessage(response, message.threadID);
 			}
-			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!modlist' && split.length === 1) {
 			Promise.try(function() {
 				if (modlist[0] == '' || modlist.length === 0) {
