@@ -38,9 +38,6 @@ function isCustomEmote(word) {
 	return (customEmotes[word] != null);
 }
 
-function returnLastResponse(api, message) {
-	
-}
 
 function parse(api, message) {
 	Promise.try(function() {
