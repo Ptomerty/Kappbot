@@ -28,14 +28,11 @@ Promise.try(function() {
 		logLevel: "silent"
 	});
 
-	var prevMessage = null;
-
 	api.listen((err, message) => {
 		if (err) return console.warn(err);
 		if (typeof message.body === 'string' && message.body !== undefined) {
 			cfc.parse(api, message);
 		}
-		message = prevMessage;
 	});
 }).catch((err) => {
 	console.error("Error during login/connection to API!", err);
