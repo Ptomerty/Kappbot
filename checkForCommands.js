@@ -38,7 +38,7 @@ function isCustomEmote(word) {
 	return (customEmotes[word] != null);
 }
 
-function parse(api, message, prevMessage) {
+function parse(api, message) {
 	Promise.try(function() {
 		const split = message.body.split(" ");
 		if (message.body === '!id') {
@@ -78,6 +78,11 @@ function parse(api, message, prevMessage) {
 			let response;
 			let slashsplit = message.body.split("/");
 			if (slashsplit.length === 3) {
+				var prevMessage = Promise.try(function() {
+					return api.getThreadHistoryAsync(message.threadID, 1, message.timestamp)
+				}).then((array) => {
+					return array[0];
+				});
 				if (prevMessage !== null) {
 					response = prevMessage.body.replace(slashsplit[1], slashsplit[2]);
 				} else {

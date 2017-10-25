@@ -33,7 +33,7 @@ Promise.try(function() {
 	api.listen((err, message) => {
 		if (err) return console.warn(err);
 		if (typeof message.body === 'string' && message.body !== undefined) {
-			cfc.parse(api, message, prevMessage);
+			cfc.parse(api, message);
 		}
 		message = prevMessage;
 	});
