@@ -75,7 +75,7 @@ function parse(api, message) {
 		} else if (split[0] === '!echo' && split.length > 1) {
 			const response = split.slice(1).join(" ");
 			api.sendMessage(response, message.threadID);
-		} else if (message.body.charAt(0) === 's' && message.body.charAt(1) === '/') {
+		} /* else if (message.body.charAt(0) === 's' && message.body.charAt(1) === '/') {
 			let response;
 			let slashsplit = message.body.split("/");
 			if (slashsplit.length === 3) {
@@ -91,7 +91,7 @@ function parse(api, message) {
 				response = "Incorrect number of parameters.";
 				api.sendMessage(response, message.threadID);
 			}
-		} else if (message.body === '!modlist' && split.length === 1) {
+		} */ else if (message.body === '!modlist' && split.length === 1) {
 			Promise.try(function() {
 				if (modlist[0] == '' || modlist.length === 0) {
 					return "No mods yet.";
@@ -123,14 +123,17 @@ function parse(api, message) {
 				}
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
-					const emotename = split[1];
-					delete customEmotes[emotename];
-					const emotefilename = __dirname + '/emotes/' + emotename + '.png';
-					return unlink(emotefilename)
+					if(customEmotes.hasOwnProperty(emotename)){
+						const emotename = split[1];
+						delete customEmotes[emotename];
+						const emotefilename = __dirname + '/emotes/' + emotename + '.png';
+						return unlink(emotefilename)
+					}					
 				}).then(() => {
 					api.sendMessage("Emote deleted!", message.threadID);
 					return writeFile('./custom.json', JSON.stringify(customEmotes))
 				}).catch(err => {
+					api.sendMessage("Error occurred while trying to remove file", message.threadID);
 					console.error("Error occurred while trying to remove file", err);
 				});
 
