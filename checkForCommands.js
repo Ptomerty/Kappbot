@@ -123,8 +123,8 @@ function parse(api, message) {
 				}
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
+					const emotename = split[1];
 					if(customEmotes[emotename]){
-						const emotename = split[1];
 						delete customEmotes[emotename];
 						const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 						return unlink(emotefilename)
@@ -133,8 +133,7 @@ function parse(api, message) {
 					api.sendMessage("Emote deleted!", message.threadID);
 					return writeFile('./custom.json', JSON.stringify(customEmotes))
 				}).catch(err => {
-					api.sendMessage("Error occurred while trying to remove file", message.threadID);
-					console.error("Error occurred while trying to remove file", err);
+					api.sendMessage("Emote does not exist.", message.threadID);
 				});
 
 			} else if (split[0] === '!mod') {
