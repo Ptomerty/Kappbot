@@ -123,7 +123,7 @@ function parse(api, message) {
 				}
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
-					if(customEmotes.hasOwnProperty(emotename)){
+					if(customEmotes[emotename]){
 						const emotename = split[1];
 						delete customEmotes[emotename];
 						const emotefilename = __dirname + '/emotes/' + emotename + '.png';
