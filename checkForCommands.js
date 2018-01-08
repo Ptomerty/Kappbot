@@ -124,10 +124,12 @@ function parse(api, message) {
 			} else if (split[0] === '!delemote' && split.length === 2) {
 				Promise.try(function() {
 					const emotename = split[1];
-					if(customEmotes[emotename]){
+					if(customEmotes.hasOwnProperty(emotename)){
 						delete customEmotes[emotename];
 						const emotefilename = __dirname + '/emotes/' + emotename + '.png';
 						return unlink(emotefilename)
+					} else {
+						throw err;
 					}					
 				}).then(() => {
 					api.sendMessage("Emote deleted!", message.threadID);
