@@ -79,9 +79,10 @@ function parse(api, message) {
 			let response;
 			let slashsplit = message.body.split("/");
 			if (slashsplit.length === 3) {
-				api.getThreadHistory(message.threadID, 1, message.timestamp, function(err, data) {
+				api.getThreadHistory(message.threadID, 10, message.timestamp, function(err, data) {
 			        if (err) throw err;	
 			        let prevMessage;
+			        data.pop(); //remove the sed command
 			        for (var i = data.length - 1; i >= 0; i--) {
 			        	prevMessage = data[i];
 			        	if (prevMessage.body.includes(slashsplit[1]) && prevMessage.senderID == message.senderID) {
