@@ -59,7 +59,7 @@ function parse(api, message) {
 				api.sendMessage("You have been made the first mod!", message.threadID);
 				return writeFile('./modlist', modlist.join('\n'));
 			});
-		} else if (message.body === '!commands') {
+		} else if (message.body === '!commands' || message.body === '!help') {
 			const response = "Commands: " + commands.join(', ');
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!modcommands') {
