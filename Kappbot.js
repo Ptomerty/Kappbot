@@ -25,13 +25,21 @@ Promise.try(function() {
 	Promise.promisifyAll(api);
 
 	api.setOptions({
-		logLevel: "silent"
+		logLevel: "silent",
+		listenEvents:true
 	});
 
 	api.listen((err, message) => {
 		if (err) return console.warn(err);
-		if (typeof message.body === 'string' && message.body !== undefined) {
-			cfc.parse(api, message);
+		switch (message.type) {
+			case "message":
+				cfc.parse(api, message);
+				break;
+			case "event":
+				if (message.logMessageType === 'log:subscribe' && (message.logMessageData['addedParticipants'][0]['userFbId'] === api.getCurrentUserID())) {
+					api.sendMessage("Hello! Type !help to view available commands.", message.threadID);
+				}
+				break;
 		}
 	});
 }).catch((err) => {
