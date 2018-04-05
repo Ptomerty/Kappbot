@@ -36,15 +36,10 @@ Promise.try(function() {
 				cfc.parse(api, message);
 				break;
 			case "event":
-				console.log(message.logMessageType);
-				console.log(message.logMessageData);
-				console.log(message.logMessageData['addedParticipants'][0]['userFbId']);
-				console.log(api.getCurrentUserID());
 				if (message.logMessageType === 'log:subscribe' && message.logMessageData.hasOwnProperty('addedParticipants') &&
 					 message.logMessageData['addedParticipants'][0]['userFbId'] === api.getCurrentUserID()) {
 					api.sendMessage("Hello! Type !help to view available commands.", message.threadID);
 				}
-
 				break;
 		}
 	});
