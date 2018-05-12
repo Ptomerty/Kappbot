@@ -68,7 +68,7 @@ function parse(api, message) {
 		} else if (split[0] === '!table' && split.length > 1) {
 			let response = split[1].toUpperCase();
 			for (var i = 1; i < response.length; i++) {
-				response += (response[i] + "\n");
+				response += (response.charAt(i) + "\n");
 			}
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!customlist') {
