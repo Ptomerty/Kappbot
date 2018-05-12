@@ -67,7 +67,8 @@ function parse(api, message) {
 			api.sendMessage(response, message.threadID);
 		} else if (split[0] === '!table' && split.length > 1) {
 			let response;
-			for (var i = 1; i < response.length; i++) {
+			let length = split[1].lengthl
+			for (var i = 1; i < length; i++) {
 				response += ("\n" + split[1].toUpperCase().charAt(i));
 			}
 			api.sendMessage(response, message.threadID);
