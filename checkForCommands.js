@@ -66,7 +66,10 @@ function parse(api, message) {
 			const response = "Mod Commands: " + modcommands.join(', ');
 			api.sendMessage(response, message.threadID);
 		} else if (split[0] === '!table' && split.length > 1) {
-			let response = split[1].toUpperCase;
+			let response = split[1].toUpperCase();
+			for (var i = 0; i < split[1].length; i++) {
+				response += (split[1].toUpperCase().charAt(i) + " ");
+			}
 			for (var i = 1; i < split[1].length; i++) {
 				response += ("\n" + split[1].toUpperCase().charAt(i));
 			}
