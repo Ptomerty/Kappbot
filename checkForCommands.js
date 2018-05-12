@@ -66,9 +66,9 @@ function parse(api, message) {
 			const response = "Mod Commands: " + modcommands.join(', ');
 			api.sendMessage(response, message.threadID);
 		} else if (split[0] === '!table' && split.length > 1) {
-			let response = split[1].toUpperCase();
+			let response;
 			for (var i = 1; i < response.length; i++) {
-				response += (response.charAt(i) + "\n");
+				response += ("\n" + split[1].toUpperCase().charAt(i));
 			}
 			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!customlist') {
