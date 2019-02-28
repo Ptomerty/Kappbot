@@ -2,7 +2,7 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
 const util = require('util');
-const axios = require('axios');
+// const axios = require('axios');
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
@@ -15,76 +15,76 @@ async function updateEmotes() {
 	console.log("Downloading emotes...");
 	const urls = [
 		'https://api.betterttv.net/emotes',
-		// 'https://twitchemotes.com/api_cache/v3/images.json'
+		'https://twitchemotes.com/api_cache/v3/images.json'
 	]
 
-	const promises = urls.map(async url => axios(url).data)
-
-	let results = await Promise.all(promises)
+	let promises = urls.map(async url => fetch(url));
+	let results = await Promise.all(promises);
+	promises = results.map(async data => data.json());
+	results = await Promise.all(promises);
 	console.log("Emotes downloaded!");
-	// results = results.map(r => r.data)
 
+	
 	console.log("Parsing into objects...");
-	let bttv = await parseBTTVJSON(results[0]);
-	let twitch = await parseTwitchJSON(results[1]);
+	let bttvObj = await parseBTTVJSON(results[0]);
+	let twitchObj = await parseTwitchJSON(results[1]);
 	console.log("Emote objects created!");
 
 
-	results = results.map(r => r.data['emotes'])[0]
-	console.log(results)
-	// for (var obj in results)
-	// 	console.log(obj)
-	// var o = results[0][0];
-	// var {
-	// 	url: newURL,
-	// 	...newo
-	// } = o;
-
-	// console.log(o)
-	
-	// var json = {
-	// 	"emotes": []
-	// };
-	// json['emotes'].push(results[0]);
-	// json['emotes'].push(results[0]);
-	// console.log(json);
-	// return results;
-
-	// // -----------------------
-
-
-
 	console.log("Removing unwanted words...");
-
-	const dict = await readFile("/usr/share/dict/words", "utf8");
-	const customDict = await readFile("./wordlist", "utf8");
-
-	// readfilestream?
-
+	let words = await readFile("/usr/share/dict/words", "utf8");
+	words += await readFile("./wordlist", "utf8");
+	let unwantedWordsArr = words.split("\n");
+	let bttvCleaned = await removeWords(bttvObj, unwantedWordsArr);
+	let twitchCleaned = await removeWords(twitchObj, unwantedWordsArr);
+	console.log("Testing if Zappa present: ")
+	console.log(bttvObj["Zappa"])
+	console.log(bttvCleaned["Zappa"])
 	console.log("Unwanted words removed!");
+
 
 	console.log("Writing to files...");
 	const writeFilePromises = [
-		writeFile('./bttv.json', JSON.stringify(bttv), 'utf8'),
-		writeFile('./twitch.json', JSON.stringify(twitch), 'utf8')
+		writeFile('./bttvEmotes.json', JSON.stringify(bttvCleaned), 'utf8'),
+		writeFile('./twitchEmotes.json', JSON.stringify(twitchCleaned), 'utf8')
 	]
-
 	await Promise.all(writeFilePromises);
 	console.log("Files written!");
 
 	console.log("Emotes successfully updated!");
+
 }
 
 async function parseBTTVJSON(data) {
+	let bttvEmotes = data['emotes'];
+	let refactoredEmotes = {};
 
+	Object.entries(bttvEmotes).forEach(
+    	([key, value]) => {
+    		let newURL = "https:" + value.url.slice(0, -2) + "3x";
+			refactoredEmotes[value.regex] = newURL;
+	});
+
+	return refactoredEmotes;
 }
 
 async function parseTwitchJSON(data) {
+	let refactoredEmotes = {};
 
+	Object.entries(data).forEach(
+    	([key, value]) => {
+    		let newURL = "https://static-cdn.jtvnw.net/emoticons/v1/" + value.id + "/3.0";
+    		refactoredEmotes[value.code] = newURL
+    });
+
+	return refactoredEmotes;
 }
 
-async function removeWords(emoteObj, pathName) {
-
+async function removeWords(emoteObj, wordsArr) {
+	let filtered = Object.entries(emoteObj)
+		.filter((key, value) => !wordsArr.includes(key));
+	return filtered;
 }
 
+exports.updateEmotes = updateEmotes;
 updateEmotes();
