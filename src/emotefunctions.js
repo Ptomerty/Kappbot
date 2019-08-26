@@ -1,11 +1,13 @@
 'use strict';
-const Promise = require('bluebird');
 const fs = require('fs');
 const fetch = require('node-fetch');
+const util = require('util');
+const stream = require('stream');
 const sharp = require('sharp');
 
-const readFile = Promise.promisify(fs.readFile);
-const writeFile = Promise.promisify(fs.writeFile);
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const pipeline = util.promisify(stream.pipeline);
 
 const twitchEmotes = require('./twitch.json');
 const bttvEmotes = require('./bttv.json');
@@ -13,24 +15,24 @@ const customEmotes = require('./custom.json');
 
 //https://www.npmjs.com/package/promisepipe
 
-var pipePromise = function(data, pathname) {
-	return new Promise((resolve, reject) => {
-		//create new transformer so stream doesn't remain closed
-		const transformer = sharp()
-		  .resize(75, 75)
-		  .withoutEnlargement()
-		  .on('error', function(err) {
-		    console.log(err);
-		  });
-		var dest = fs.createWriteStream(pathname);
-		var pipe = data.pipe(transformer).pipe(dest);
-		pipe.on('close', () => {
-			resolve();
-		}).on('error', () => {
-			pipe.end();
-			reject();
-		})
-	})
+async function writeToFile(data, pathname) {
+	const transformer = sharp()
+		.resize(112, 112)
+		.withoutEnlargement()
+		.on('error', (err) => console.log);
+	try {
+		pipeline(
+			data,
+			transformer,
+			fs.createWriteStream(pathname)
+			);
+	} catch (err) {
+		throw new Error("Error during writing of sharp-transformed data to file!");
+	}
+}
+
+function generateURL(name) {
+	
 }
 
 var generateURL = function(name) {
@@ -39,11 +41,11 @@ var generateURL = function(name) {
 
 	if (bttvEmotes[name] != null) {
 		imageID = bttvEmotes[name];
-		url = 'https://cdn.betterttv.net/emote/' + imageID + '/2x';
+		url = 'https://cdn.betterttv.net/emote/' + imageID + '/3x';
 	} else if (twitchEmotes[name] != null) {
 		// console.log('emote is global')
 		imageID = twitchEmotes[name];
-		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/2.0';
+		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/3.0';
 	}
 	return url;
 }
