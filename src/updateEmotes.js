@@ -86,5 +86,8 @@ async function removeWords(emoteObj, wordsArr) {
 	return filtered;
 }
 
-exports.updateEmotes = updateEmotes;
+module.exports = {
+	updateEmotes
+}
+
 updateEmotes();
