@@ -14,34 +14,90 @@ const bttvEmotes = require('./bttv.json');
 
 var commands = {
 	"!id": id,
-	"!help": commands,
-	"!commands": commands,
+	"!help": listCommands,
+	"!commands": listCommands,
 	"!ping": ping,
-	"!threadID": threadID
+	"!threadID": threadID,
+	"!list": listCustomEmotes,
+	"!echo": echo,
+	"!addEmote": addEmote,
+	"!delEmote": delEmote
+	// TOOD: Implement sed-replace
 }
 
-function id(message) {
-	return `Your ID is ${message.senderID}`;
+async function id(api, message) {
+	let split = message.body.split(" ");
+	if (split.length = 1) {
+		return `Your ID is ${message.senderID}`;
+	} else {
+		let name = split.slice(1).join(' ');
+		let user = await api.getUserID(name);
+		return `${user.name}'s ID is ${user.userID}`;
+	}
 }
 
-function commands(message) {
-	return `Commands: ${Object.keys(commands)}`;
+function listCommands(api, message) {
+	return `Commands: ${Object.keys(commands).join(', ')}`;
 }
 
-function ping(message) {
+function listCustomEmotes(api, message) {
+	return `Custom emotes: ${Object.keys(customEmotes).join(', ')}`
+}
+
+function ping(api, message) {
 	return `pong`;
 }
 
-function threadID(message) {
+function threadID(api, message) {
 	return `Thread ID: ${message.threadID}`;
 }
 
-function table(message) {
-	let split = message.body.split(" ")
+function table(api, message) {
+	let split = message.body.split(" ");
 	if (split.length > 1) {
-		split.shift();
-		split = split.join('').toUpperCase().split('');
+		split = split.slice(1).join('').toUpperCase().split('');
 		let firstLetter = split.shift();
-		return `${firstLetter} ${split.join(' ')}\n${split.join('\n')}`
+		return `${firstLetter} ${split.join(' ')}\n${split.join('\n')}`;
+	} else {
+		return 'Incorrect number of parameters. Usage: !table <message>';
+	}
+}
+
+function echo(api, message) {
+	// TODO: echoThread
+	return message.body.split(' ').slice(1).join(' ');
+}
+
+async function addEmote(api, message) {
+	let split = message.body.split(" ");
+	if (split.length < 2) {
+		return 'Incorrect number of parameters. Usage: !addEmote <emoteName[, URL]>';
+	} else {
+		let name = split[2];
+		customEmotes[name] = '';
+		if (split[3] !== undefined) {
+			let url = split[3];
+			await getEmoteImageStream(name, url);
+		}
+		await writeFile('./custom.json', JSON.stringify(customEmotes));
+		return `Emote ${name} added!`;
+	}
+}
+
+async function delEmote(api, message) {
+	let split = message.body.split(" ");
+	if (split.length < 2) {
+		return 'Incorrect number of parameters. Usage: !delEmote <emoteName>';
+	} else {
+		let name = split[2];
+		if (name in customEmotes) {
+			
+		}
+		if (split[3] !== undefined) {
+			let url = split[3];
+			await getEmoteImageStream(name, url);
+		}
+		await writeFile('./custom.json', JSON.stringify(customEmotes));
+		return `Emote ${name} added!`;
 	}
 }

@@ -42,13 +42,7 @@ function isCustomEmote(word) {
 function parse(api, message) {
 	Promise.try(function() {
 		const split = message.body.split(" ");
-		 if (message.body === '!customlist') {
-			const response = "Custom emote list: " + Object.keys(customEmotes).join(', ');
-			api.sendMessage(response, message.threadID);
-		} else if (split[0] === '!echo' && split.length > 1) {
-			const response = split.slice(1).join(" ");
-			api.sendMessage(response, message.threadID);
-		} else if (message.body.charAt(0) === 's' && message.body.charAt(1) === '/') {
+		if (message.body.charAt(0) === 's' && message.body.charAt(1) === '/') {
 			let response;
 			let slashsplit = message.body.split("/");
 			if (slashsplit.length === 3) {
@@ -106,11 +100,7 @@ function parse(api, message) {
 					api.sendMessage("Emote does not exist.", message.threadID);
 				});
 
-			} else if (split[0] === '!echothread' && split.length > 2) {
-				const response = split.slice(2).join(" ");
-				api.sendMessage(response, split[1]);
-			
-		} else {
+			}  else {
 			let cleanedMsg = cleanMessage(message.body);
 			let splitWords = cleanedMsg.split(" ");
 
