@@ -11,11 +11,8 @@ const pipeline = util.promisify(stream.pipeline);
 
 const twitchEmotes = require('./twitch.json');
 const bttvEmotes = require('./bttv.json');
-const customEmotes = require('./custom.json');
 
-//https://www.npmjs.com/package/promisepipe
-
-async function writeToFile(data, pathname) {
+async function sharpTransformToFile(data, pathname) {
 	const transformer = sharp()
 		.resize(112, 112)
 		.withoutEnlargement()
@@ -32,10 +29,6 @@ async function writeToFile(data, pathname) {
 }
 
 function generateURL(name) {
-	
-}
-
-var generateURL = function(name) {
 	var imageID;
 	var url;
 
@@ -50,7 +43,7 @@ var generateURL = function(name) {
 	return url;
 }
 
-var getEmoteImageStream = function(name, url) {
+async function getEmoteImageStream (name, url) {
 	const pathname = __dirname + '/emotes/' + name + '.png';
 	return new Promise((resolve, reject) => {
 		const stream = fs.createReadStream(pathname);
@@ -60,16 +53,14 @@ var getEmoteImageStream = function(name, url) {
 					if (url == null) {
 						url = generateURL(name);
 					}
-					Promise.try(function(){
-						return fetch(url)
-					}).then((res) => {
-						return pipePromise(res.body, pathname);
-					}).then(() => {
-						const stream = fs.createReadStream(pathname);
+					try {
+						let res = await fetch(url);
+						await sharpTransformToFile(res.body, pathname);
+						let stream = fs.createReadStream(pathname);
 						resolve(stream);
-					}).catch(err => {
-						console.error('error during downloading!', err);
-					});
+					} catch (err) {
+						console.error('Error when getting emote stream!', err);
+					}
 				} else {
 					reject(err);
 				}
@@ -80,5 +71,8 @@ var getEmoteImageStream = function(name, url) {
 			});
 	});
 }
-exports.getEmoteImageStream = getEmoteImageStream;
-exports.pipePromise = pipePromise;
+
+module.exports = {
+	getEmoteImageStream,
+	sharpTransformToFile
+}
