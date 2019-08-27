@@ -7,6 +7,7 @@ const sharp = require('sharp');
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
+const unlink = util.promisify(fs.unlink);
 const pipeline = util.promisify(stream.pipeline);
 
 const twitchEmotes = require('./twitch.json');
@@ -37,7 +38,7 @@ function generateURL(name) {
 }
 
 async function getEmoteImageStream (name, url) {
-	const pathname = `../emotes/img/${name}.png`;
+	const pathname = `${__dirname}/emotes/img/${name}.png`;
 	return new Promise((resolve, reject) => {
 		const stream = fs.createReadStream(pathname);
 		//ENOENT thrown here!
@@ -65,7 +66,13 @@ async function getEmoteImageStream (name, url) {
 	});
 }
 
+async function deleteEmoteFile(name) {
+	const pathname = `${__dirname}/emotes/img/${name}.png`;
+	await unlink(pathname);
+}
+
 module.exports = {
 	getEmoteImageStream,
-	sharpTransformToFile
+	sharpTransformToFile,
+	deleteEmoteFile
 }

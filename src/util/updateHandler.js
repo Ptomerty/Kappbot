@@ -31,9 +31,7 @@ async function updateEmotes() {
 
 
 	console.log("Removing unwanted words...");
-	let words = await readFile("/usr/share/dict/words", "utf8");
-	words += await readFile("./wordlist", "utf8");
-	let unwantedWordsArr = words.split("\n");
+	let unwantedWordsArr = await getDictionary();
 	let bttvCleaned = await removeWords(bttvObj, unwantedWordsArr);
 	let twitchCleaned = await removeWords(twitchObj, unwantedWordsArr);
 	console.log("Testing if Zappa present: ")
@@ -52,6 +50,12 @@ async function updateEmotes() {
 
 	console.log("Emotes successfully updated!");
 
+}
+
+async function getDictionary() {
+	let words = await readFile("/usr/share/dict/words", "utf8");
+	words += await readFile("./wordlist", "utf8");
+	return words.split("\n");
 }
 
 async function parseBTTVJSON(data) {
@@ -86,7 +90,8 @@ async function removeWords(emoteObj, wordsArr) {
 }
 
 module.exports = {
-	updateEmotes
+	updateEmotes,
+	getDictionary
 }
 
 updateEmotes();

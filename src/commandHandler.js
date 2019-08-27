@@ -25,13 +25,19 @@ var commands = {
 	// TOOD: Implement sed-replace
 }
 
+async function parse(api, message) {
+	let cmd = message.body.split(" ")[0];
+	return commands[cmd](api, message);
+}
+
 async function id(api, message) {
+	const getUserID = util.promisify(api.getUserID);
 	let split = message.body.split(" ");
 	if (split.length = 1) {
 		return `Your ID is ${message.senderID}`;
 	} else {
 		let name = split.slice(1).join(' ');
-		let user = await api.getUserID(name);
+		let user = await getUserID(name);
 		return `${user.name}'s ID is ${user.userID}`;
 	}
 }
@@ -91,13 +97,16 @@ async function delEmote(api, message) {
 	} else {
 		let name = split[2];
 		if (name in customEmotes) {
-			
-		}
-		if (split[3] !== undefined) {
-			let url = split[3];
-			await getEmoteImageStream(name, url);
+			delete customEmotes[name];
+			await deleteEmoteFile(name);
+		} else {
+			return `Emote ${name} not found!`;
 		}
 		await writeFile('./custom.json', JSON.stringify(customEmotes));
-		return `Emote ${name} added!`;
-	}
+		return `Emote ${name} deleted!`;
+}
+
+module.exports = {
+	commands,
+	parse
 }
