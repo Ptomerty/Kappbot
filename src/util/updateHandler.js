@@ -2,7 +2,6 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
 const util = require('util');
-// const axios = require('axios');
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
@@ -61,7 +60,7 @@ async function parseBTTVJSON(data) {
 
 	Object.entries(bttvEmotes).forEach(
     	([key, value]) => {
-    		let newURL = "https:" + value.url.slice(0, -2) + "3x";
+    		let newURL = `https:${value.url.slice(0, -2)}3x`;
 			refactoredEmotes[value.regex] = newURL;
 	});
 
@@ -73,7 +72,7 @@ async function parseTwitchJSON(data) {
 
 	Object.entries(data).forEach(
     	([key, value]) => {
-    		let newURL = "https://static-cdn.jtvnw.net/emoticons/v1/" + value.id + "/3.0";
+    		let newURL = `https://static-cdn.jtvnw.net/emoticons/v1/${value.id}/3.0`;
     		refactoredEmotes[value.code] = newURL
     });
 

@@ -29,22 +29,15 @@ async function sharpTransformToFile(data, pathname) {
 }
 
 function generateURL(name) {
-	var imageID;
-	var url;
-
 	if (bttvEmotes[name] != null) {
-		imageID = bttvEmotes[name];
-		url = 'https://cdn.betterttv.net/emote/' + imageID + '/3x';
+		return `https://cdn.betterttv.net/emote/${bttvEmotes[name]}/3x`;
 	} else if (twitchEmotes[name] != null) {
-		// console.log('emote is global')
-		imageID = twitchEmotes[name];
-		url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + imageID + '/3.0';
+		return  `https://static-cdn.jtvnw.net/emoticons/v1/${twitchEmotes[name]}/3.0`;
 	}
-	return url;
 }
 
 async function getEmoteImageStream (name, url) {
-	const pathname = __dirname + '/emotes/' + name + '.png';
+	const pathname = `../emotes/img/${name}.png`;
 	return new Promise((resolve, reject) => {
 		const stream = fs.createReadStream(pathname);
 		//ENOENT thrown here!

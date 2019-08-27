@@ -42,9 +42,7 @@ function isCustomEmote(word) {
 function parse(api, message) {
 	Promise.try(function() {
 		const split = message.body.split(" ");
-		if (message.body === '!id') {
-			api.sendMessage("Your ID is " + message.senderID, message.threadID);
-		} else if (message.body === '!modme' && modlist.length <= 1) {
+		 if (message.body === '!modme' && modlist.length <= 1) {
 			Promise.try(function() {
 				if (modlist.length == 1) {
 					if (modlist[0] == '') {
@@ -59,9 +57,6 @@ function parse(api, message) {
 				api.sendMessage("You have been made the first mod!", message.threadID);
 				return writeFile('./modlist', modlist.join('\n'));
 			});
-		} else if (message.body === '!commands' || message.body === '!help') {
-			const response = "Commands: " + commands.join(', ');
-			api.sendMessage(response, message.threadID);
 		} else if (message.body === '!modcommands') {
 			const response = "Mod Commands: " + modcommands.join(', ');
 			api.sendMessage(response, message.threadID);
@@ -77,10 +72,6 @@ function parse(api, message) {
 		} else if (message.body === '!customlist') {
 			const response = "Custom emote list: " + Object.keys(customEmotes).join(', ');
 			api.sendMessage(response, message.threadID);
-		} else if (message.body === '!ping') {
-			api.sendMessage("pong", message.threadID);
-		} else if (message.body === '!threadID') {
-			api.sendMessage(message.threadID + "", message.threadID);
 		} else if (split[0] === '!echo' && split.length > 1) {
 			const response = split.slice(1).join(" ");
 			api.sendMessage(response, message.threadID);
