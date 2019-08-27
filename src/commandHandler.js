@@ -37,7 +37,7 @@ function threadID(message) {
 }
 
 function table(message) {
-	let split = message.split(" ")
+	let split = message.body.split(" ")
 	if (split.length > 1) {
 		split.shift();
 		split = split.join('').toUpperCase().split('');

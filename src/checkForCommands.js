@@ -42,34 +42,7 @@ function isCustomEmote(word) {
 function parse(api, message) {
 	Promise.try(function() {
 		const split = message.body.split(" ");
-		 if (message.body === '!modme' && modlist.length <= 1) {
-			Promise.try(function() {
-				if (modlist.length == 1) {
-					if (modlist[0] == '') {
-						modlist[0] = message.senderID;
-					} else {
-						return; //break out of promise.try
-					}
-					//else there's already a mod
-				} else { //modlist has length 0
-					modlist.push(message.senderID);
-				}
-				api.sendMessage("You have been made the first mod!", message.threadID);
-				return writeFile('./modlist', modlist.join('\n'));
-			});
-		} else if (message.body === '!modcommands') {
-			const response = "Mod Commands: " + modcommands.join(', ');
-			api.sendMessage(response, message.threadID);
-		} else if (split[0] === '!table' && split.length > 1) {
-			let response = "";
-			for (var i = 0; i < split[1].length; i++) {
-				response += (split[1].toUpperCase().charAt(i) + " ");
-			}
-			for (var i = 1; i < split[1].length; i++) {
-				response += ("\n" + split[1].toUpperCase().charAt(i));
-			}
-			api.sendMessage(response, message.threadID);
-		} else if (message.body === '!customlist') {
+		 if (message.body === '!customlist') {
 			const response = "Custom emote list: " + Object.keys(customEmotes).join(', ');
 			api.sendMessage(response, message.threadID);
 		} else if (split[0] === '!echo' && split.length > 1) {
@@ -98,19 +71,7 @@ function parse(api, message) {
 				response = "Incorrect number of parameters.";
 				api.sendMessage(response, message.threadID);
 			}
-		} else if (message.body === '!modlist' && split.length === 1) {
-			Promise.try(function() {
-				if (modlist[0] == '' || modlist.length === 0) {
-					return "No mods yet.";
-				} else {
-					return api.getUserInfoAsync(modlist)
-						.then((userarray) => Object.values(userarray).map(user => user.name).join(', ')); //return array of names
-				}
-			}).then((listofnames) => {
-				let response = "Mods: " + listofnames;
-				api.sendMessage(response, message.threadID);
-			})
-		} else if (modlist.includes(message.senderID) && modcommands.includes(split[0])) {
+		}
 			if (split[0] === '!addemote') {
 				const emotename = split[1];
 				customEmotes[emotename] = '';
@@ -145,49 +106,10 @@ function parse(api, message) {
 					api.sendMessage("Emote does not exist.", message.threadID);
 				});
 
-			} else if (split[0] === '!mod') {
-				Promise.try(function() {
-					if (split.length === 2) {
-						return split[1];
-					} else {
-						const name = split[1] + " " + split[2];
-						return api.getUserIDAsync(name)
-							.then((data) => data[0].userID); //return userid
-					}
-				}).then((id) => {
-					modlist.push(id);
-					api.sendMessage("Mod successful!", message.threadID);
-					return writeFile('./modlist', modlist.join('\n'));
-				}).catch(err => {
-					api.sendMessage("Adding ID failed, exiting.", message.threadID);
-					console.error(err);
-				});
-			} else if (split[0] === '!demod') {
-				Promise.try(function() {
-					if (split.length === 2) {
-						return split[1];
-					} else {
-						const name = split[1] + " " + split[2];
-						return api.getUserIDAsync(name)
-							.then((data) => data[0].userID); //return userid
-					}
-				}).then((id) => {
-					if (modlist.includes(id)) {
-						modlist.splice(modlist.indexOf(id), 1);
-						api.sendMessage("Demod successful!", message.threadID);
-						return writeFile('./modlist', modlist.join('\n'));
-					} else {
-						api.sendMessage("Mod not found.", message.threadID);
-					}
-				}).catch(err => {
-					api.sendMessage("Adding ID failed, exiting.", message.threadID);
-					console.error(err);
-				});
-
 			} else if (split[0] === '!echothread' && split.length > 2) {
 				const response = split.slice(2).join(" ");
 				api.sendMessage(response, split[1]);
-			}
+			
 		} else {
 			let cleanedMsg = cleanMessage(message.body);
 			let splitWords = cleanedMsg.split(" ");
