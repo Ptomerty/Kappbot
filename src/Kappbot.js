@@ -22,7 +22,7 @@ await updateHandler.updateEmotes();
 
 let appState = await readFile('./appstate.json');
 let api = await login({
-	appState: appState
+	appState: JSON.parse(appState)
 });
 api.setOptions({
 		logLevel: "silent",
