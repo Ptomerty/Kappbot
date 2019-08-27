@@ -42,8 +42,8 @@ async function updateEmotes() {
 
 	console.log("Writing to files...");
 	const writeFilePromises = [
-		writeFile('./bttvEmotes.json', JSON.stringify(bttvCleaned), 'utf8'),
-		writeFile('./twitchEmotes.json', JSON.stringify(twitchCleaned), 'utf8')
+		writeFile('../emotes/bttvEmotes.json', JSON.stringify(bttvCleaned), 'utf8'),
+		writeFile('../emotes/twitchEmotes.json', JSON.stringify(twitchCleaned), 'utf8')
 	]
 	await Promise.all(writeFilePromises);
 	console.log("Files written!");
@@ -54,7 +54,7 @@ async function updateEmotes() {
 
 async function getDictionary() {
 	let words = await readFile("/usr/share/dict/words", "utf8");
-	words += await readFile("./wordlist", "utf8");
+	words += await readFile("../emotes/wordlist", "utf8");
 	return words.split("\n");
 }
 
@@ -77,7 +77,7 @@ async function parseTwitchJSON(data) {
 	Object.entries(data).forEach(
     	([key, value]) => {
     		let newURL = `https://static-cdn.jtvnw.net/emoticons/v1/${value.id}/3.0`;
-    		refactoredEmotes[value.code] = newURL
+    		refactoredEmotes[value.code] = newURL;
     });
 
 	return refactoredEmotes;

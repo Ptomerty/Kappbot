@@ -2,15 +2,16 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
 const util = require('util');
-const stream = require('stream');
+
+const emoteFileHandler = require('../util/emoteFileHandler.js');
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
-const writeFile = util.promisify(fs.unlink);
-const pipeline = util.promisify(stream.pipeline);
+const unlink = util.promisify(fs.unlink);
 
-const twitchEmotes = require('./twitch.json');
-const bttvEmotes = require('./bttv.json');
+const twitchEmotes = require('../emotes/twitch.json');
+const bttvEmotes = require('../emotes/bttv.json');
+const customEmotes = require('../emotes/custom.json');
 
 var commands = {
 	"!id": id,
@@ -83,7 +84,7 @@ async function addEmote(api, message) {
 		customEmotes[name] = '';
 		if (split[3] !== undefined) {
 			let url = split[3];
-			await getEmoteImageStream(name, url);
+			await emoteFileHandler.getEmoteImageStream(name, url);
 		}
 		await writeFile('./custom.json', JSON.stringify(customEmotes));
 		return `Emote ${name} added!`;
@@ -98,7 +99,7 @@ async function delEmote(api, message) {
 		let name = split[2];
 		if (name in customEmotes) {
 			delete customEmotes[name];
-			await deleteEmoteFile(name);
+			await emoteFileHandler.deleteEmoteFile(name);
 		} else {
 			return `Emote ${name} not found!`;
 		}

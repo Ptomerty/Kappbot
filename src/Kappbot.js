@@ -1,18 +1,24 @@
 'use strict';
 const fs = require('fs');
-const fetch = require('node-fetch');
 const util = require('util');
-const stream = require('stream');
-
-const login = util.promisify(require('facebook-chat-api'));
 
 const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
 
-const twitchEmotes = require('./twitch.json');
-const bttvEmotes = require('./bttv.json');
+const commandHandler = require('./commands/commandHandler.js');
+const updateHandler = require('./util/updateHandler.js');
+const emoteFileHandler = require('./util/emoteFileHandler.js');
 
+const twitchEmotes = require('./emotes/twitch.json');
+const bttvEmotes = require('./emotes/bttv.json');
+const customEmotes = require('./emotes/custom.json');
+
+const login = util.promisify(require('facebook-chat-api'));
 const MAX_NUMBER_OF_EMOTES = 7;
+
+
+
+console.log('Updating emotes...');
+await updateHandler.updateEmotes();
 
 let appState = await readFile('./appstate.json');
 let api = await login({
@@ -22,7 +28,9 @@ api.setOptions({
 		logLevel: "silent",
 		listenEvents:true
 	});
+
 const listen = util.promisify(api.listen);
+
 while (true) {
 	let message = await api.listen();
 	switch (message.type) {
@@ -33,12 +41,12 @@ while (true) {
 				commandHandler.parse(api, message);
 			} else {
 				split.map(cleanMessage);
-				let dict = getDictionary();
+				let dict = updateHandler.getDictionary();
 				split.filter(word => {
 					checkIfEmote(word, dict);					
 				});
 				split = split.slice(0, MAX_NUMBER_OF_EMOTES);
-				let promises = split.map(getEmoteImageStream);
+				let promises = split.map(emoteFileHandler.getEmoteImageStream);
 				let results = await Promises.all(promises);
 				api.sendMessage({
 					attachment: results

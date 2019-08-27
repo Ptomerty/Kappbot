@@ -10,10 +10,12 @@ const writeFile = util.promisify(fs.writeFile);
 const unlink = util.promisify(fs.unlink);
 const pipeline = util.promisify(stream.pipeline);
 
-const twitchEmotes = require('./twitch.json');
-const bttvEmotes = require('./bttv.json');
+const twitchEmotes = require('../emotes/twitch.json');
+const bttvEmotes = require('../emotes/bttv.json');
 
-async function sharpTransformToFile(data, pathname) {
+
+
+async function sharpTransformToStream(data, pathname) {
 	const transformer = sharp()
 		.resize(112, 112)
 		.withoutEnlargement()
@@ -29,14 +31,6 @@ async function sharpTransformToFile(data, pathname) {
 	}
 }
 
-function generateURL(name) {
-	if (bttvEmotes[name] != null) {
-		return `https://cdn.betterttv.net/emote/${bttvEmotes[name]}/3x`;
-	} else if (twitchEmotes[name] != null) {
-		return  `https://static-cdn.jtvnw.net/emoticons/v1/${twitchEmotes[name]}/3.0`;
-	}
-}
-
 async function getEmoteImageStream (name, url) {
 	const pathname = `${__dirname}/emotes/img/${name}.png`;
 	return new Promise((resolve, reject) => {
@@ -45,11 +39,15 @@ async function getEmoteImageStream (name, url) {
 		stream.on('error', function(error) {
 				if (error.code == 'ENOENT') {
 					if (url == null) {
-						url = generateURL(name);
+						if (name in bttvEmotes) {
+							url = bttvEmotes[name];
+						} else if (name in twitchEmotes) {
+							url = twitchEmotes[name];
+						}
 					}
 					try {
 						let res = await fetch(url);
-						await sharpTransformToFile(res.body, pathname);
+						await sharpTransformToStream(res.body, pathname);
 						let stream = fs.createReadStream(pathname);
 						resolve(stream);
 					} catch (err) {
@@ -73,6 +71,6 @@ async function deleteEmoteFile(name) {
 
 module.exports = {
 	getEmoteImageStream,
-	sharpTransformToFile,
+	sharpTransformToStream,
 	deleteEmoteFile
 }
