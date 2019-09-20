@@ -93,5 +93,3 @@ module.exports = {
 	updateEmotes,
 	getDictionary
 }
-
-updateEmotes();

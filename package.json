@@ -17,9 +17,8 @@
   },
   "homepage": "https://github.com/Ptomerty/Kappbot#readme",
   "dependencies": {
-    "bluebird": "^3.5.3",
     "facebook-chat-api": "github:Schmavery/facebook-chat-api",
-    "node-fetch": "^2.3.0",
-    "sharp": "^0.21.0"
+    "node-fetch": "^2.6.0",
+    "sharp": "^0.23.0"
   }
 }

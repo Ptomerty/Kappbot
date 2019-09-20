@@ -46,10 +46,12 @@ async function getEmoteImageStream (name, url) {
 						}
 					}
 					try {
-						let res = await fetch(url);
-						await sharpTransformToStream(res.body, pathname);
-						let stream = fs.createReadStream(pathname);
-						resolve(stream);
+						async () => {
+							let res = await fetch(url);
+							await sharpTransformToStream(res.body, pathname);
+							let stream = fs.createReadStream(pathname);
+							resolve(stream);
+						}
 					} catch (err) {
 						console.error('Error when getting emote stream!', err);
 					}

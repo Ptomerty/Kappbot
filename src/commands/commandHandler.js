@@ -105,6 +105,7 @@ async function delEmote(api, message) {
 		}
 		await writeFile('./custom.json', JSON.stringify(customEmotes));
 		return `Emote ${name} deleted!`;
+	}
 }
 
 module.exports = {
