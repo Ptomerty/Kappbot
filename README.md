@@ -1,31 +1,33 @@
 # Kappbot
 
-Bot that sends Twitch Emotes to Facebook chats
+Twitch Emotes over Facebook Messenger.
 
-# How to setup
------
-Requires `facebook-chat-api`, `bluebird`, `node-fetch`, `forever` (-g option), `sharp`.
+## Setup
 
-Replace `FB_EMAIL` and `FB_PASSWORD` in `saveapp.js`, then run it to produce your `appstate.json`. Run `setup.js` to update your Twitch/BTTV emotes, then run `Kappbot.js` from then on. Run `setup.js` if you ever need to update your emotes again.
+Simply `npm install` inside of the directory to install all dependencies. Set environment variables `FB_EMAIL` and `FB_PASSWORD`, then run `login.js`. From there, launch `Kappbot.js` and you're all set!
 
-### Custom emotes
------
-When the bot first starts, type `!modme` to make yourself the first mod. Note that anyone can type this, so be quick about it!
+## Commands
 
-Type `!commands` or `!modcommands` to list possible commands, most work as expected.
+#### `!id <name=null>`
+If `name` is populated, returns user ID of said user. Otherwise, returns user ID of sender.
 
-Syntax for `!mod` is `!mod [first name] [last name]`, same with `!demod`.
+#### `!help` `!commands`
+Lists all commands.
 
-Syntax for `!addemote` is `!addemote [emotename] [basesite] [restofURL]` to avoid FB errors. For example, `!addemote sampleemote i.imgur.com QFCBlMD.jpg` will work.
+#### `!ping`
+Pong.
 
-Syntax for `!echothread` is `!echothread [threadID] [message..]`. 
+#### `!threadID`
+Returns ID of current message thread.
 
-Custom emote list can be enumerated with `!customlist` in chat.
+#### `!list`
+Lists all custom emotes.
 
-Huge thanks to zsoc, joepie91, charmander, and everyone else on #Node.js for helping me throughout the whole project!
+#### `!echo <message>`
+Returns provided message.
 
-### Changelog
------
-v2.0: Partial rewrite to use node-fetch, breaks backwards compatibility.
+#### `!addEmote <emoteName[, URL]>`
+Adds `emoteName` into the list of custom emotes. If `URL` is populated, fetch image from the provided link and download it first.
 
-v1.1: Complete rewrite to work with promises.
+#### `!delEmote <emoteName>`
+Deletes custom emote and file from server.
