@@ -19,6 +19,6 @@
   "dependencies": {
     "facebook-chat-api": "github:Schmavery/facebook-chat-api",
     "node-fetch": "^2.6.0",
-    "sharp": "^0.23.0"
+    "sharp": "^0.25.2"
   }
 }
