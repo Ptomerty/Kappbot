@@ -13,8 +13,8 @@ async function updateEmotes() {
 	
 	console.log("Downloading emotes...");
 	const urls = [
-		'https://api.betterttv.net/emotes',
-		'https://twitchemotes.com/api_cache/v3/images.json'
+		'https://api.betterttv.net/3/cached/emotes/global',
+		// 'https://twitchemotes.com/api_cache/v3/images.json'
 	]
 
 	let promises = urls.map(async url => fetch(url));

@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/Ptomerty/Kappbot#readme",
   "dependencies": {
-    "libfb": "^2.3.5",
-    "node-fetch": "^2.6.0",
-    "sharp": "^0.25.2"
+    "facebook-chat-api": "github:Schmavery/facebook-chat-api",
+    "mkdirp": "^1.0.4",
+    "node-fetch": "^2.6.0"
   }
 }
