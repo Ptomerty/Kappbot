@@ -16,43 +16,51 @@ const funcMap = new Map([
 	['!table', table],
 	['!addemote', addEmote],
 	['!delemote', delEmote],
-	['!updateemotes', updateEmotes]
+	['!bttv', updateBTTV],
+	['!twitch', updateTwitch]
 ]);
 
 async function init() {
-  // load emote objects
-  try {
-	  ffzEmotes = JSON.parse(await fsp.readFile('./emotes/ffz.json', 'utf8'));
-  } catch (e) {
-	  ffzEmotes = {};
-	  await fsp.writeFile('./emotes/ffz.json', JSON.stringify(ffzEmotes));
-  }
+	// load emote objects
+	try {
+		ffzEmotes = JSON.parse(await fsp.readFile('./emotes/ffz.json', 'utf8'));
+	} catch (e) {
+		ffzEmotes = {};
+		await fsp.writeFile('./emotes/ffz.json', JSON.stringify(ffzEmotes));
+	}
 
-  try {
-	  bttvEmotes = JSON.parse(await fsp.readFile('./emotes/bttv.json', 'utf8'));
-  } catch (e) {
-	  bttvEmotes = {};
-	  await fsp.writeFile('./emotes/bttv.json', JSON.stringify(ffzEmotes));
-  }
+	try {
+		bttvEmotes = JSON.parse(await fsp.readFile('./emotes/bttv.json', 'utf8'));
+	} catch (e) {
+		bttvEmotes = {};
+		await fsp.writeFile('./emotes/bttv.json', JSON.stringify(bttvEmotes));
+	}
 
-  try {
-	  twitchEmotes = JSON.parse(await fsp.readFile('./emotes/twitch.json', 'utf8'));
-  } catch (e) {
-	  twitchEmotes = {};
-	  await fsp.writeFile('./emotes/twitch.json', JSON.stringify(ffzEmotes));
-  }
+	try {
+		twitchEmotes = JSON.parse(await fsp.readFile('./emotes/twitch.json', 'utf8'));
+	} catch (e) {
+		twitchEmotes = {};
+		await fsp.writeFile('./emotes/twitch.json', JSON.stringify(twitchEmotes));
+	}
 
-  try {
-	  customEmotes = JSON.parse(await fsp.readFile('./emotes/custom.json', 'utf8'));
-  } catch (e) {
-	  customEmotes = {};
-	  await fsp.writeFile('./emotes/custom.json', JSON.stringify(ffzEmotes));
-  }
+	try {
+		customEmotes = JSON.parse(await fsp.readFile('./emotes/custom.json', 'utf8'));
+	} catch (e) {
+		customEmotes = {};
+		await fsp.writeFile('./emotes/custom.json', JSON.stringify(customEmotes));
+	}
 }
 
-async function updateEmotes(api, message) {
-  await updater.updateEmotes();
-  return 'Emotes updated!';
+async function updateBTTV(api, message) {
+	bttvEmotes = await updater.getNewBTTVEmotes();
+ 	await fsp.writeFile('./emotes/bttv.json', JSON.stringify(bttvEmotes));
+ 	return 'BTTV emotes updated!';
+}
+
+async function updateTwitch(api, message) {
+ 	twitchEmotes = await updater.getNewTwitchEmotes();
+ 	await fsp.writeFile('./emotes/twitch.json', JSON.stringify(twitchEmotes));
+ 	return 'Emotes updated!';
 }
 
 async function id(api, message) {
@@ -180,10 +188,10 @@ async function delEmote(api, message) {
 
 async function generateEmoteStream(name) {
 	const pathname = `${__dirname}/emotes/img/${name}.png`;
-	return new Promise((resolve, reject) => {
-		const stream = fs.createReadStream(pathname);
-		stream.on('error', async err => {
-			console.log("local emote not found!");
+	return new Promise(async (resolve, reject) => {
+		try {
+			await fsp.stat(pathname);
+		} catch (err) {
 			if (err.code !== 'ENOENT') {
 				reject(err); // something broke
 			}
@@ -191,26 +199,26 @@ async function generateEmoteStream(name) {
 			let res = await fetch(url);
 			res = await res.buffer();
 			await fsp.writeFile(pathname, res);
-			resolve(fs.createReadStream(pathname));
-		});
-		resolve(stream);
+		}
+		resolve(fs.createReadStream(pathname));
 	});
 }
 
 function emoteExists(name) {
-  return (ffzEmotes[name] !== undefined)
+	return (ffzEmotes[name] !== undefined)
 		|| (customEmotes[name] !== undefined)
 		|| (bttvEmotes[name] !== undefined)
 		|| (twitchEmotes[name] !== undefined);
 }
 module.exports = {
-  funcMap,
-  ffzEmotes,
-  bttvEmotes,
-  twitchEmotes,
-  customEmotes,
-  emoteExists,
-  generateEmoteStream,
-  updateEmotes,
-  init,
+	funcMap,
+	ffzEmotes,
+	bttvEmotes,
+	twitchEmotes,
+	customEmotes,
+	emoteExists,
+	generateEmoteStream,
+	updateBTTV,
+	updateTwitch,
+	init,
 };
