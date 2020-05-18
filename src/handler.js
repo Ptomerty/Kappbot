@@ -99,8 +99,7 @@ async function addEmote(api, message) {
 	if (split.length < 2) {
 		return 'Incorrect number of parameters. Usage: !addemote [ffz|link|local] <query> [...url]';
 	} 
-	let source = split[0];
-	let query = split[1];
+	const [source, query] = split;
 
 	if (customEmotes[query] !== undefined) {
 		return `Custom emote already exists!`;
@@ -113,9 +112,9 @@ async function addEmote(api, message) {
 		const url = `https://api.frankerfacez.com/v1/emoticons?sort=count-desc&per_page=1&q=${query}`;
 		let res = await fetch(url);
 		res = await res.json();
-		res = res['emoticons'][0];
-
-		let name = res['name'];
+		const { emoticons } = res;
+		let [emote] = emoticons;
+		const { name } = emote;
 
 		// required to check again since capitalization may be different
 		if (customEmotes[name] !== undefined) {
@@ -125,7 +124,7 @@ async function addEmote(api, message) {
 			return `FFZ emote already exists!`;
 		}
 
-		const emoteUrl = `https:${res['urls']['4']}`;
+		const emoteUrl = `https:${emote.urls['4']}`;
 		const pathname = `${__dirname}/emotes/img/${name}.png`;
 		let res2 = await fetch(emoteUrl);
 		res2 = await res2.buffer();
@@ -135,7 +134,7 @@ async function addEmote(api, message) {
 		await fsp.writeFile(`${__dirname}/emotes/ffz.json`, JSON.stringify(ffzEmotes));
 		return `FFZ emote ${name} added!`;
 	} else if (source === 'link') {
-		let url = split[2];
+		const [,,url] = split;
 		let res = await fetch(url);
 		res = await res.buffer();
 		const pathname = `${__dirname}/emotes/img/${query}.png`
@@ -170,7 +169,7 @@ async function delEmote(api, message) {
 	if (split.length !== 1) {
 		return 'Incorrect number of parameters. Usage: !delEmote <query>';
 	} 
-	let query = split[0];
+	const [query] = split;
 	if (ffzEmotes[query] !== undefined) {
 		const {[query]: val, ...newffz} = ffzEmotes;
 		ffzEmotes = newffz;
