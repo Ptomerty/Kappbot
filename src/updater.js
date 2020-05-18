@@ -31,14 +31,12 @@ async function getNewTwitchEmotes() {
 
     let refactoredEmotes = {};
 	let unwantedWords = await getDict();
-	console.log(unwantedWords);
 	Object.entries(emoticons).forEach(([key, value]) => {
 		if (!(unwantedWords.includes(value.regex))) {
 			refactoredEmotes[value.regex] = `${value.images.url.slice(0, -4)}/4.0`;
 		}
 	});
 
-	console.log(refactoredEmotes['BC']);
 	return refactoredEmotes;
 }
 
