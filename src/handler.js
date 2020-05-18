@@ -17,7 +17,8 @@ const funcMap = new Map([
 	['!addemote', addEmote],
 	['!delemote', delEmote],
 	['!bttv', updateBTTV],
-	['!twitch', updateTwitch]
+	['!twitch', updateTwitch],
+	['!list', listEmotes]
 ]);
 
 async function init() {
@@ -49,6 +50,10 @@ async function init() {
 		customEmotes = {};
 		await fsp.writeFile(`${__dirname}/emotes/custom.json`, JSON.stringify(customEmotes));
 	}
+}
+
+async function listEmotes(api, message) {
+	return `Emotes: ${Object.keys(customEmotes).join(", ")}`;
 }
 
 async function updateBTTV(api, message) {
