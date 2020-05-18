@@ -23,43 +23,43 @@ const funcMap = new Map([
 async function init() {
 	// load emote objects
 	try {
-		ffzEmotes = JSON.parse(await fsp.readFile('./emotes/ffz.json', 'utf8'));
+		ffzEmotes = JSON.parse(await fsp.readFile(`${__dirname}/emotes/ffz.json`, 'utf8'));
 	} catch (e) {
 		ffzEmotes = {};
-		await fsp.writeFile('./emotes/ffz.json', JSON.stringify(ffzEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/ffz.json`, JSON.stringify(ffzEmotes));
 	}
 
 	try {
-		bttvEmotes = JSON.parse(await fsp.readFile('./emotes/bttv.json', 'utf8'));
+		bttvEmotes = JSON.parse(await fsp.readFile(`${__dirname}/emotes/bttv.json`, 'utf8'));
 	} catch (e) {
 		bttvEmotes = {};
-		await fsp.writeFile('./emotes/bttv.json', JSON.stringify(bttvEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/bttv.json`, JSON.stringify(bttvEmotes));
 	}
 
 	try {
-		twitchEmotes = JSON.parse(await fsp.readFile('./emotes/twitch.json', 'utf8'));
+		twitchEmotes = JSON.parse(await fsp.readFile(`${__dirname}/emotes/twitch.json`, 'utf8'));
 	} catch (e) {
 		twitchEmotes = {};
-		await fsp.writeFile('./emotes/twitch.json', JSON.stringify(twitchEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/twitch.json`, JSON.stringify(twitchEmotes));
 	}
 
 	try {
-		customEmotes = JSON.parse(await fsp.readFile('./emotes/custom.json', 'utf8'));
+		customEmotes = JSON.parse(await fsp.readFile(`${__dirname}/emotes/custom.json`, 'utf8'));
 	} catch (e) {
 		customEmotes = {};
-		await fsp.writeFile('./emotes/custom.json', JSON.stringify(customEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/custom.json`, JSON.stringify(customEmotes));
 	}
 }
 
 async function updateBTTV(api, message) {
 	bttvEmotes = await updater.getNewBTTVEmotes();
- 	await fsp.writeFile('./emotes/bttv.json', JSON.stringify(bttvEmotes));
+ 	await fsp.writeFile(`${__dirname}/emotes/bttv.json`, JSON.stringify(bttvEmotes));
  	return 'BTTV emotes updated!';
 }
 
 async function updateTwitch(api, message) {
  	twitchEmotes = await updater.getNewTwitchEmotes();
- 	await fsp.writeFile('./emotes/twitch.json', JSON.stringify(twitchEmotes));
+ 	await fsp.writeFile(`${__dirname}/emotes/twitch.json`, JSON.stringify(twitchEmotes));
  	return 'Emotes updated!';
 }
 
@@ -132,7 +132,7 @@ async function addEmote(api, message) {
 		await fsp.writeFile(pathname, res2);
 
 		ffzEmotes[name] = null;
-		await fsp.writeFile('./emotes/ffz.json', JSON.stringify(ffzEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/ffz.json`, JSON.stringify(ffzEmotes));
 		return `FFZ emote ${name} added!`;
 	} else if (source === 'link') {
 		let url = split[2];
@@ -142,7 +142,7 @@ async function addEmote(api, message) {
 		await fsp.writeFile(pathname, res);
 
 		customEmotes[query] = null;
-		await fsp.writeFile('./emotes/custom.json', JSON.stringify(customEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/custom.json`, JSON.stringify(customEmotes));
 		return `Custom emote ${query} added!`;
 	} else if (source === 'local') {
 		try {
@@ -157,7 +157,7 @@ async function addEmote(api, message) {
 		}
 
 		customEmotes[query] = null;
-		await fsp.writeFile('./emotes/custom.json', JSON.stringify(customEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/custom.json`, JSON.stringify(customEmotes));
 		return `Custom emote ${query} added!`;
 	} else {
 		return 'Invalid source specified. Usage: !addemote [ffz|link|local] <query> [...url]';
@@ -174,12 +174,12 @@ async function delEmote(api, message) {
 	if (ffzEmotes[query] !== undefined) {
 		const {[query]: val, ...newffz} = ffzEmotes;
 		ffzEmotes = newffz;
-		await fsp.writeFile('./emotes/ffz.json', JSON.stringify(ffzEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/ffz.json`, JSON.stringify(ffzEmotes));
 		return `FFZ emote ${query} removed!`;
 	} else if (customEmotes[query] !== undefined) {
 		const {[query]: val, ...newcustom} = customEmotes;
 		customEmotes = newcustom;
-		await fsp.writeFile('./emotes/custom.json', JSON.stringify(customEmotes));
+		await fsp.writeFile(`${__dirname}/emotes/custom.json`, JSON.stringify(customEmotes));
 		return `Custom emote ${query} removed!`;
 	} else {
 		return `Emote does not exist as FFZ or custom emote.`;
