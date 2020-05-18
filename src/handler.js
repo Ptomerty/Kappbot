@@ -3,39 +3,9 @@ const fs = require('fs');
 const fsp = fs.promises;
 const fetch = require('node-fetch');
 
-const crypto = require("crypto");
+const updater = require('./updater.js');
 
 let ffzEmotes, bttvEmotes, twitchEmotes, customEmotes;
-
-// load emote objects
-try {
-	ffzEmotes = require('./emotes/ffz.json');
-} catch (e) {
-	ffzEmotes = {};
-	fs.writeFileSync("./emotes/ffz.json", JSON.stringify(ffzEmotes));
-}
-
-try {
-	bttvEmotes = require('./emotes/bttv.json');
-} catch (e) {
-	bttvEmotes = {};
-	fs.writeFileSync("./emotes/bttv.json", JSON.stringify(bttvEmotes));
-}
-
-try {
-	twitchEmotes = require('./emotes/twitch.json');
-} catch (e) {
-	twitchEmotes = {};
-	fs.writeFileSync("./emotes/twitch.json", JSON.stringify(twitchEmotes));
-}
-
-try {
-	customEmotes = require('./emotes/custom.json');
-} catch (e) {
-	customEmotes = {};
-	fs.writeFileSync("./emotes/custom.json", JSON.stringify(customEmotes));
-}
-
 
 const funcMap = new Map([
 	['!id', id],
@@ -46,11 +16,43 @@ const funcMap = new Map([
 	['!table', table],
 	['!addemote', addEmote],
 	['!delemote', delEmote],
-	['test', internalTest]
+	['!updateemotes', updateEmotes]
 ]);
 
-async function internalTest(arg) {
+async function init() {
+  // load emote objects
+  try {
+	  ffzEmotes = JSON.parse(await fsp.readFile('./emotes/ffz.json', 'utf8'));
+  } catch (e) {
+	  ffzEmotes = {};
+	  await fsp.writeFile('./emotes/ffz.json', JSON.stringify(ffzEmotes));
+  }
 
+  try {
+	  bttvEmotes = JSON.parse(await fsp.readFile('./emotes/bttv.json', 'utf8'));
+  } catch (e) {
+	  bttvEmotes = {};
+	  await fsp.writeFile('./emotes/bttv.json', JSON.stringify(ffzEmotes));
+  }
+
+  try {
+	  twitchEmotes = JSON.parse(await fsp.readFile('./emotes/twitch.json', 'utf8'));
+  } catch (e) {
+	  twitchEmotes = {};
+	  await fsp.writeFile('./emotes/twitch.json', JSON.stringify(ffzEmotes));
+  }
+
+  try {
+	  customEmotes = JSON.parse(await fsp.readFile('./emotes/custom.json', 'utf8'));
+  } catch (e) {
+	  customEmotes = {};
+	  await fsp.writeFile('./emotes/custom.json', JSON.stringify(ffzEmotes));
+  }
+}
+
+async function updateEmotes(api, message) {
+  await updater.updateEmotes();
+  return 'Emotes updated!';
 }
 
 async function id(api, message) {
@@ -178,7 +180,6 @@ async function delEmote(api, message) {
 
 async function generateEmoteStream(name) {
 	const pathname = `${__dirname}/emotes/img/${name}.png`;
-	console.log("pathname called: " + pathname);
 	return new Promise((resolve, reject) => {
 		const stream = fs.createReadStream(pathname);
 		stream.on('error', async err => {
@@ -197,9 +198,19 @@ async function generateEmoteStream(name) {
 }
 
 function emoteExists(name) {
-	return (ffzEmotes[name] !== undefined) ||
-		(customEmotes[name] !== undefined) ||
-		(bttvEmotes[name] !== undefined) ||
-		(twitchEmotes[name] !== undefined)
+  return (ffzEmotes[name] !== undefined)
+		|| (customEmotes[name] !== undefined)
+		|| (bttvEmotes[name] !== undefined)
+		|| (twitchEmotes[name] !== undefined);
 }
-module.exports = { funcMap, ffzEmotes, bttvEmotes, twitchEmotes, customEmotes, emoteExists, generateEmoteStream };
+module.exports = {
+  funcMap,
+  ffzEmotes,
+  bttvEmotes,
+  twitchEmotes,
+  customEmotes,
+  emoteExists,
+  generateEmoteStream,
+  updateEmotes,
+  init,
+};
