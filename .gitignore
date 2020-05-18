@@ -1,10 +1,6 @@
-appstate.json
-emotes/*
-saveapp.js
-bttv*.json
-twitch*.json
-!emotes/sampleemote.png
-custom.json
+src/credentials.json
+src/emotes
+src/appstate.json
 
 # Node .gitignore from GitHub
 # Source: https://github.com/github/gitignore/blob/master/Node.gitignore
