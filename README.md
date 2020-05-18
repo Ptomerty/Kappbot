@@ -12,6 +12,9 @@ $ npm install
 $ # make sure to modify credentials.json with your facebook email, password, and twitch client_id
 $ cp credentials_sample.json credentials.json
 
+$ # update removed_words.txt if needed
+$ # nano removed_words.txt
+
 $ npm run start
 ```
 
