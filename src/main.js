@@ -2,7 +2,6 @@
 
 const util = require('util');
 const login = util.promisify(require('facebook-chat-api'));
-const mkdirp = require('mkdirp');
 const fsp = require('fs').promises;
 const readline = require('readline');
 
@@ -16,53 +15,43 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
-(async () => {
-    await mkdirp(`${__dirname}/emotes/img`); // just in case
-
+async function getAPI() {
     let appstate;
     let api;
-    // super ugly but we don't know if facebook locks us out
     try {
         appstate = await fsp.readFile(`${__dirname}/appstate.json`, 'utf8');
-        try {
-            api = await login({ appState: JSON.parse(appstate) });
-        } catch (e) {
-            switch (e.error) {
-                case 'login-approval':
-                    console.log('Enter code > ');
-                    rl.on('line', (line) => {
-                        e.continue(line);
-                        rl.close();
-                    });
-                    break;
-                default:
-                    console.error(e);
-            }
-        }
-        console.log('Logged in with existing appstate.');
+        console.log("Found existing appstate...")
     } catch (e) {
-        try {
-            api = await login({ email: credentials.email, password: credentials.password });
-        } catch (e2) {
-            switch (e2.error) {
-                case 'login-approval':
-                    console.log('Enter code > ');
-                    rl.on('line', (line) => {
-                        e2.continue(line);
-                        rl.close();
-                    });
-                    break;
-                default:
-                    console.error(e2);
-            }
-        }
-        await fsp.writeFile(`${__dirname}/appstate.json`, JSON.stringify(api.getAppState()));
-        console.log('Created new appstate!');
+        console.log("Existing appstate not found.")
     }
-
+    try {
+        if (appstate === undefined) {
+            api = await login({ email: credentials.email, password: credentials.password });
+            await fsp.writeFile(`${__dirname}/appstate.json`, JSON.stringify(api.getAppState()));
+            console.log('Created new appstate!');
+        } else {
+            api = await login({ appState: JSON.parse(appstate) });
+            console.log('Logged in with existing appstate.');
+        }
+    } catch (e) {
+        if (e.error == 'login-approval') {
+            console.log('Enter code > ');
+            rl.on('line', (line) => {
+                e.continue(line);
+                rl.close();
+            });
+        } else {
+            console.error(e);
+        }
+    }
+    return api;
+}
+(async () => {
+    await fsp.mkdir(`${__dirname}/emotes/img`, { recursive: true });
+    
+    let api = await getAPI();
     await handler.init();
 
-    // let api = await login({email: credentials.email, password: credentials.password});
     api.setOptions({
         // logLevel: "silent",
         forceLogin: true,

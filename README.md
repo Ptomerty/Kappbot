@@ -15,7 +15,7 @@ $ cp credentials_sample.json credentials.json
 $ # update removed_words.txt if needed
 $ # nano removed_words.txt
 
-$ npm run start
+$ npm start
 ```
 
 ## Commands
