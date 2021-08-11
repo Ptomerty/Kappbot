@@ -1,8 +1,10 @@
-# Kappbot
+# [Kappbot](https://github.com/Ptomerty/Kappbot)
 
-A chat bot that sends emoticons over Facebook Messenger.
+A chat bot that sends emoticons over Facebook Messenger. If you're viewing this in a browser, welcome! Click the above link to view the entire repository.
 
 ## Installation
+
+Install this as you would any other NPM package.
 
 ```bash
 $ git clone https://github.com/Ptomerty/Kappbot.git
