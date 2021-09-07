@@ -2,7 +2,7 @@
 
 ###  If you're viewing this in a browser, welcome! Click the above link to view the entire repository.
 
-A chat bot that sends emoticons over Facebook Messenger, with support for custom image upload.
+A chat bot that sends emoticons over Facebook Messenger, with support for custom image upload. Note: After the deprecation of [Schmavery/facebook-chat-api](https://github.com/Schmavery/facebook-chat-api), this project is now in maintenance mode due to outdated dependencies.
 
 ## Installation
 
